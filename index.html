@@ -1,0 +1,1544 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>小鹏汇天「陆地航母」全方位系统安全分析 | Fundamentals of Flying Vehicle Technology 2026</title>
+  <meta name="description" content="结合系统安全工程方法（CAST、FHA/HARA、STPA、FTA/DFMEA/CCA、ISO 21448 SOTIF、GB 38031-2025 热安全、ISO/SAE 21434 TARA、ISO 34502 V&V 与 GSN v3），对小鹏汇天（ARIDGE）「陆地航母」进行跨界全方位深度安全分析。">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body class="fv-page" lang="zh-CN">
+  <div class="fv-progress" id="readingProgress" aria-hidden="true"></div>
+
+  <nav class="lab-nav fv-nav" id="caseNav" aria-label="主导航">
+    <div class="lab-nav-inner">
+      <a href="#top" class="lab-nav-brand">
+        <span class="lab-nav-badge">FVT 2026 · SAFETY</span>
+        <span class="cn">飞行汽车技术基础 · 作业-2 全方位安全分析</span>
+        <span class="en">FVT 2026 · Assignment 2 System Safety Analysis</span>
+      </a>
+      <button class="lab-nav-toggle" onclick="toggleNav()" aria-label="Toggle Navigation">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="lab-nav-links">
+        <li><a href="#scope"><span class="cn">系统边界</span><span class="en">Boundary</span></a></li>
+        <li><a href="#cast"><span class="cn">长春CAST</span><span class="en">CAST</span></a></li>
+        <li><a href="#hara-fha"><span class="cn">HARA/FHA</span><span class="en">HARA/FHA</span></a></li>
+        <li><a href="#stpa"><span class="cn">STPA</span><span class="en">STPA</span></a></li>
+        <li><a href="#fta-fmea"><span class="cn">FTA/CCA</span><span class="en">FTA/CCA</span></a></li>
+        <li><a href="#sotif"><span class="cn">SOTIF</span><span class="en">SOTIF</span></a></li>
+        <li><a href="#thermal-crash"><span class="cn">电池/网安</span><span class="en">Thermal/Cyber</span></a></li>
+        <li><a href="#gsn"><span class="cn">GSN论据</span><span class="en">GSN Case</span></a></li>
+        <li><a href="#references"><span class="cn">参考文献</span><span class="en">Refs</span></a></li>
+        <li><button type="button" class="nav-action-btn" onclick="window.print()"><span class="cn">打印/PDF</span><span class="en">Print/PDF</span></button></li>
+        <li class="lab-lang-switch"><a href="#" onclick="toggleLang();return false;" id="langBtn">EN</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main id="top">
+    <!-- Hero -->
+    <header class="fv-article-hero">
+      <div class="container fv-article-hero-grid">
+        <div class="fv-article-hero-copy">
+          <p class="fv-kicker">
+            <span class="cn">飞行汽车技术基础（2026）· 课程作业-2 系统安全工程专题报告</span>
+            <span class="en">Fundamentals of Flying Vehicle Technology (2026) · Assignment 2 Safety Report</span>
+          </p>
+          <h1 class="fv-article-title">
+            <span class="cn">小鹏汇天「陆地航母」(ARIDGE Land Aircraft Carrier) 全方位系统安全分析</span>
+            <span class="en">Comprehensive System Safety Analysis of the ARIDGE (XPENG AEROHT) Land Aircraft Carrier</span>
+          </h1>
+          <p class="fv-deck cn">
+            延续作业-1 的工程调研对象，本文沿系统安全工程完整链条（CAST 事故溯源 → 双域 FHA/HARA → STPA 控制结构与 UCA → FTA/DFMEA/CCA → ISO 21448 SOTIF → GB 38031-2025 热安全与碰撞 → ISO/SAE 21434 TARA → ISO 34502 V&amp;V → GSN v3 安全论据），重点解剖“道路车辆 + 自动分合耦合层 + 六旋翼 eVTOL”三大域交汇处的残余安全风险与放行缺口。
+          </p>
+          <p class="fv-deck en">
+            Extending Assignment 1, this study executes a full-spectrum safety engineering assessment—spanning CAST incident reconstruction, dual-domain FHA/HARA, STPA control-loop modeling, FTA/DFMEA/CCA, ISO 21448 SOTIF, GB 38031-2025 thermal safety, ISO/SAE 21434 cybersecurity, ISO 34502 V&amp;V, and a GSN v3 safety case—targeting the high-risk boundaries across road chassis, automated docking interface, and the X3-F hexacopter.
+          </p>
+          <div class="fv-byline">
+            <span><span class="cn">分析对象：陆行体母舰 + 自动分合机构 + X3-F 飞行体</span><span class="en">Scope: 6x6 Mothership + Auto-Docking + X3-F eVTOL</span></span>
+            <span><span class="cn">安全截止日期：2026-11-19</span><span class="en">Safety Baseline: 2026-11-19</span></span>
+            <span><span class="cn">提交截止：2026-11-26 18:00</span><span class="en">Due: 2026-11-26 18:00</span></span>
+          </div>
+        </div>
+
+        <!-- Custom Vector SVG #0: Dual-Domain Safety Panorama -->
+        <figure class="fv-hero-visual">
+          <svg viewBox="0 0 640 420" role="img" aria-label="陆地航母双域耦合系统安全工程全景图">
+            <defs>
+              <pattern id="gridSafe" width="20" height="20" patternUnits="userSpaceOnUse">
+                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#18384a" stroke-width="0.6"/>
+              </pattern>
+            </defs>
+            <rect width="640" height="420" fill="#0d222e"/>
+            <rect width="640" height="420" fill="url(#gridSafe)"/>
+
+            <text x="20" y="26" fill="#8fd3ee" font-family="ui-monospace, monospace" font-size="10.5" font-weight="700">DUAL-DOMAIN SAFETY ENVELOPE // ROAD + COUPLING + AIRCRAFT</text>
+            <line x1="20" y1="36" x2="620" y2="36" stroke="#244d63" stroke-width="1"/>
+
+            <!-- Left Column: Road Domain -->
+            <rect x="20" y="54" width="180" height="222" fill="#133344" stroke="#5398b8" stroke-width="1.4"/>
+            <rect x="20" y="54" width="180" height="28" fill="#1d4d66"/>
+            <text x="110" y="72" fill="#ffffff" font-size="11" font-weight="700" text-anchor="middle" font-family="sans-serif">ROAD DOMAIN (陆行母舰)</text>
+            <text x="32" y="102" fill="#cbe5f0" font-size="10" font-family="sans-serif">• ISO 26262 (ASIL A–D)</text>
+            <text x="32" y="124" fill="#cbe5f0" font-size="10" font-family="sans-serif">• GB 38031-2025 热扩散零容忍</text>
+            <text x="32" y="146" fill="#cbe5f0" font-size="10" font-family="sans-serif">• GB 20072 追尾电池侵入防护</text>
+            <text x="32" y="168" fill="#cbe5f0" font-size="10" font-family="sans-serif">• GA 802 / C1 ≤4,500 kg 红线</text>
+            <text x="32" y="190" fill="#cbe5f0" font-size="10" font-family="sans-serif">• 6×6 线控转向 / 制动冗余</text>
+            <rect x="30" y="212" width="160" height="48" fill="#0b1f29" stroke="#3c738c"/>
+            <text x="110" y="232" fill="#f2b866" font-size="9.5" font-weight="700" text-anchor="middle" font-family="ui-monospace, monospace">TARGET: PMHF &lt;10⁻⁸/h</text>
+            <text x="110" y="248" fill="#9bc2d4" font-size="9" text-anchor="middle" font-family="sans-serif">Safe State: 靠边驻车断高压</text>
+
+            <!-- Center Column: Coupling Interface -->
+            <rect x="226" y="54" width="188" height="222" fill="#232018" stroke="#d99a42" stroke-width="1.6" stroke-dasharray="5,3"/>
+            <rect x="226" y="54" width="188" height="28" fill="#704412"/>
+            <text x="320" y="72" fill="#ffffff" font-size="11" font-weight="700" text-anchor="middle" font-family="sans-serif">COUPLING INTERFACE (耦合界面)</text>
+            <text x="238" y="102" fill="#fce3be" font-size="10" font-family="sans-serif">• 车载滑轨锁止 &amp; 折叠铰链疲劳</text>
+            <text x="238" y="124" fill="#fce3be" font-size="10" font-family="sans-serif">• 800V 盲插接插件电弧/湿敏隔离</text>
+            <text x="238" y="146" fill="#fce3be" font-size="10" font-family="sans-serif">• 3°–5° 坡度盲对准 SOTIF ODD</text>
+            <text x="238" y="168" fill="#fce3be" font-size="10" font-family="sans-serif">• 车-机状态互锁与防夹保护</text>
+            <text x="238" y="190" fill="#fce3be" font-size="10" font-family="sans-serif">• 后备舱追尾高镍电芯传导</text>
+            <rect x="236" y="212" width="168" height="48" fill="#17120c" stroke="#b57a29"/>
+            <text x="320" y="232" fill="#f79c8e" font-size="9.5" font-weight="700" text-anchor="middle" font-family="ui-monospace, monospace">HIGHEST RISK ZONE</text>
+            <text x="320" y="248" fill="#e5c89e" font-size="9" text-anchor="middle" font-family="sans-serif">取双域最严准则交集 (ASIL D∩DAL A)</text>
+
+            <!-- Right Column: Air Domain -->
+            <rect x="440" y="54" width="180" height="222" fill="#133344" stroke="#5398b8" stroke-width="1.4"/>
+            <rect x="440" y="54" width="180" height="28" fill="#1d4d66"/>
+            <text x="530" y="72" fill="#ffffff" font-size="11" font-weight="700" text-anchor="middle" font-family="sans-serif">AIR DOMAIN (X3-F 飞行体)</text>
+            <text x="452" y="102" fill="#cbe5f0" font-size="10" font-family="sans-serif">• CCAR-21-R5 LSA 专用条件</text>
+            <text x="452" y="124" fill="#cbe5f0" font-size="10" font-family="sans-serif">• SAE ARP4761A / ARP4754B</text>
+            <text x="452" y="146" fill="#cbe5f0" font-size="10" font-family="sans-serif">• EASA SC-VTOL 单点失效参考</text>
+            <text x="452" y="168" fill="#cbe5f0" font-size="10" font-family="sans-serif">• 6旋翼 OEI 重构 + 弹射伞死区</text>
+            <text x="452" y="190" fill="#cbe5f0" font-size="10" font-family="sans-serif">• 360 Wh/kg (25C) 空中热安全</text>
+            <rect x="450" y="212" width="160" height="48" fill="#0b1f29" stroke="#3c738c"/>
+            <text x="530" y="232" fill="#80e0a7" font-size="9.5" font-weight="700" text-anchor="middle" font-family="ui-monospace, monospace">TARGET: 10⁻⁷–10⁻⁹ /fh</text>
+            <text x="530" y="248" fill="#9bc2d4" font-size="9" text-anchor="middle" font-family="sans-serif">Safe State: 受控应急着陆/开伞</text>
+
+            <!-- Connectors -->
+            <line x1="200" y1="165" x2="226" y2="165" stroke="#d99a42" stroke-width="2"/>
+            <line x1="414" y1="165" x2="440" y2="165" stroke="#d99a42" stroke-width="2"/>
+
+            <!-- Bottom Cross-Cutting Assurance Layer -->
+            <rect x="20" y="294" width="600" height="106" fill="#112b39" stroke="#39708c" stroke-width="1.2"/>
+            <text x="34" y="316" fill="#8fd3ee" font-size="10.5" font-weight="700" font-family="ui-monospace, monospace">CROSS-CUTTING ASSURANCE &amp; EMPIRICAL ANCHOR</text>
+            <text x="34" y="338" fill="#d9eef7" font-size="10" font-family="sans-serif">1. SOTIF (ISO 21448) &amp; Scenario V&amp;V (ISO 34502): 防范非故障条件下的功能不足与模式混淆</text>
+            <text x="34" y="358" fill="#d9eef7" font-size="10" font-family="sans-serif">2. Cybersecurity (ISO/SAE 21434): 车-机网关、GNSS 防欺骗、OTA 与飞控物理域隔离</text>
+            <text x="34" y="378" fill="#f79c8e" font-size="10" font-family="sans-serif">3. CAST 实证锚点: 2025-09-16 长春航展预演双机接触起火事件 → 禁止人工屏蔽碰撞预警且缺失硬围栏</text>
+          </svg>
+          <figcaption>
+            <span class="cn">图 0：「陆地航母」跨界系统安全全景框架。道路域、耦合界面域与航空域的安全哲学与“安全状态（Safe State）”截然不同，工程分析重点落在三域边界与实证事件约束。</span>
+            <span class="en">Figure 0: Dual-domain system safety panorama of the Land Aircraft Carrier, highlighting how road safety, automated coupling interfaces, and aviation safety intersect across standards and empirical incident lessons.</span>
+          </figcaption>
+        </figure>
+      </div>
+    </header>
+
+    <!-- 3-Column Shell -->
+    <div class="container fv-article-shell">
+      <!-- Left Sticky TOC -->
+      <nav class="fv-toc" aria-label="文章目录">
+        <p class="fv-toc-title"><span class="cn">安全分析目录</span><span class="en">Safety Contents</span></p>
+        <ol>
+          <li><a href="#summary"><span class="cn">执行摘要</span><span class="en">Executive Summary</span></a></li>
+          <li><a href="#scope">01 <span class="cn">系统边界与标准映射</span><span class="en">Scope &amp; Standards</span></a></li>
+          <li><a href="#cast">02 <span class="cn">长春事件 CAST 逆向剖析</span><span class="en">CAST Incident Study</span></a></li>
+          <li><a href="#hara-fha">03 <span class="cn">双域 FHA 与 HARA</span><span class="en">FHA &amp; HARA Matrix</span></a></li>
+          <li><a href="#stpa">04 <span class="cn">STPA 控制结构与 UCA</span><span class="en">STPA &amp; UCAs</span></a></li>
+          <li><a href="#fta-fmea">05 <span class="cn">FTA、DFMEA 与 CCA</span><span class="en">FTA, DFMEA &amp; CCA</span></a></li>
+          <li><a href="#sotif">06 <span class="cn">SOTIF 与 ODD 运行边界</span><span class="en">SOTIF &amp; ODD Bounds</span></a></li>
+          <li><a href="#thermal-crash">07 <span class="cn">热失控、碰撞与物理安全</span><span class="en">Thermal &amp; Crash Safety</span></a></li>
+          <li><a href="#cyber">08 <span class="cn">信息安全 TARA 分析</span><span class="en">Cybersecurity TARA</span></a></li>
+          <li><a href="#vv">09 <span class="cn">场景化 V&amp;V 验证体系</span><span class="en">Scenario V&amp;V Loop</span></a></li>
+          <li><a href="#gsn">10 <span class="cn">GSN 安全论据与门控审计</span><span class="en">GSN Case &amp; Gates</span></a></li>
+          <li><a href="#recommendations">11 <span class="cn">分级工程改进建议</span><span class="en">Recommendations</span></a></li>
+          <li><a href="#limitations">12 <span class="cn">局限性与证据缺口</span><span class="en">Limitations &amp; Gaps</span></a></li>
+          <li><a href="#references"><span class="cn">参考文献</span><span class="en">References</span></a></li>
+        </ol>
+      </nav>
+
+      <!-- Main Article -->
+      <article class="fv-article">
+        <!-- Executive Summary -->
+        <section class="fv-executive" id="summary">
+          <h2><span class="cn">安全分析执行摘要</span><span class="en">Safety Executive Summary</span></h2>
+          <ol>
+            <li>
+              <span class="cn"><strong>“解耦式安全”的双刃剑本质：</strong>相比将车轮、防撞梁带飞上天的一体式飞行汽车，「陆地航母」用物理分体隔绝了日常道路小剐蹭对航空器适航结构的损伤，但同时在车-机结合部创造了高风险耦合界面——后备舱自动锁止/解锁误触发、800V 盲插高压电弧以及车尾碰撞对舱内 360 Wh/kg 航空电池包的挤压传播，必须在最严等级（<code>ASIL D ∩ DAL A</code>）下联合论证。</span>
+              <span class="en"><strong>Dual-Edged Modular Safety:</strong> Decoupling road and flight hardware shields the airframe from minor street fender-benders, but introduces severe interface hazards—inadvertent rear-bay unlock, 800V blind-mate arcing, and rear-impact intrusion into the stowed 360 Wh/kg aviation battery—demanding combined <code>ASIL D ∩ DAL A</code> rigor.</span>
+            </li>
+            <li>
+              <span class="cn"><strong>长春航展预演碰撞起火事件（2025-09-16）的 CAST 教训：</strong>该起真实公开事故证明，即便单机硬件冗余完好，一旦在特定作业模式下允许人为关闭“智能碰撞预警”且缺少强制电子防撞围栏，双机视觉深度误差仍会瞬间演变为空中接触、硬着陆与撞击后电池起火。因此，系统安全设计必须将<strong>“最小安全间隔硬围栏”</strong>设为不可被用户/演练模式屏蔽的强制约束。</span>
+              <span class="en"><strong>CAST Lesson from Changchun (16 Sept 2025):</strong> The real dual-aircraft rehearsal collision and post-landing fire prove that hardware redundancy alone cannot stop organizational and HMI bypasses. Disabling collision alerts without a non-overridable minimum-separation geofence led directly to mid-air contact and impact-induced fire.</span>
+            </li>
+            <li>
+              <span class="cn"><strong>六旋翼单发失效（OEI）与低空开伞死区约束：</strong>同平面六旋翼构型在单桨失能时存在俯仰/滚转与偏航力矩强耦合，定量最小割集仿真显示，唯有将电推共因因子（β）压低至 ≤ 1% 并确保 OEI 控制分配失效率 &lt; 2%，方能使总灾难概率跨过 LSA/SC-VTOL Basic 门槛；而离地 5–50 m 起降过渡区处于整机弹射伞充气死区内，无法靠降落伞兜底。</span>
+              <span class="en"><strong>Hexacopter OEI &amp; Parachute Dead-Zone:</strong> Planar 6-rotor layouts exhibit coupled pitch/roll/yaw losses under OEI. Quantitative cut-set modeling shows β-factor must stay ≤ 1% and OEI reconfiguration failure &lt; 2% to meet SC-VTOL Basic bounds, because 5–50 m AGL transitions sit inside the ballistic parachute inflation dead-zone.</span>
+            </li>
+            <li>
+              <span class="cn"><strong>热安全合规的跨界跃迁（GB 38031-2025）：</strong>国家强制标准 GB 38031-2025（2026 年 7 月 1 日起实施）已将动力电池热扩散从“5 分钟逃生报警”升级为“不起火、不爆炸”。「陆地航母」在同一车体内共存燃油增程器、800V 车端电池与高硅高镍航空电池，必须通过区域安全分析（ZSA）验证高热负荷并存下的级联火灾阻断能力。</span>
+              <span class="en"><strong>Thermal Compliance Step-Change (GB 38031-2025):</strong> Effective 1 July 2026, China mandates zero fire/explosion under battery thermal diffusion. Co-locating an ICE range extender, vehicle 800V pack, and stowed 25C aviation pack demands strict Zonal Safety Analysis (ZSA) and GB 20072 rear-impact barriers.</span>
+            </li>
+            <li>
+              <span class="cn"><strong>当前 GSN 安全论据整体放行结论：</strong>截至 2026 年 11 月 19 日，基于公开可查证证据，X3-F 尚处于 CAAC TC/PC 受理审定中且专用条件限定“非商业载客”，陆行体公告总质量与全寿命碰撞/分合数据尚未完全公开——按严谨系统安全工程准则，当前状态应判定为<strong>“仅限受控沙盒与试验飞行场有条件运行（RESTRICTED SANDBOX）”</strong>，尚不满足无限制个人 C 端公开道路-低空自由交付的完整安全论据闭环。</span>
+              <span class="en"><strong>Current GSN Safety Case Verdict (19 Nov 2026):</strong> With X3-F TC/PC still under CAAC review (private daytime VMC only) and final MIIT homologated GVWR/rear-crash reports undisclosed publicly, verifiable evidence supports <strong>RESTRICTED SANDBOX / TRIAL OPS ONLY</strong> rather than unrestricted retail consumer release.</span>
+            </li>
+          </ol>
+        </section>
+
+        <!-- Stat Band -->
+        <div class="fv-stat-band" aria-label="核心安全定量指标">
+          <div>
+            <strong>ASIL D ∩ 10⁻⁹</strong>
+            <span class="cn">跨界最高耦合安全目标（道路硬件 &lt;10⁻⁸/h 交集航空增强级 10⁻⁹/fh）</span>
+            <span class="en">Coupled safety peak (Road &lt;10⁻⁸/h intersecting Aviation Enhanced 10⁻⁹/fh)</span>
+          </div>
+          <div>
+            <strong>2025-09-16</strong>
+            <span class="cn">长春航展预演双机空中接触及着陆起火事件（CAST 实证研究锚点）</span>
+            <span class="en">Changchun rehearsal mid-air contact &amp; fire (empirical CAST case anchor)</span>
+          </div>
+          <div>
+            <strong>GB 38031-2025</strong>
+            <span class="cn">2026-07-01 实施新国标：动力电池热扩散强制“不起火、不爆炸”</span>
+            <span class="en">Effective 2026-07-01: mandatory "no fire, no explosion" battery thermal diffusion rule</span>
+          </div>
+          <div>
+            <strong>12 UCA / 8 Gates</strong>
+            <span class="cn">本文构建 12 项 STPA 不安全控制行为与 8 项 GSN 放行门控核查</span>
+            <span class="en">12 STPA Unsafe Control Actions &amp; 8 GSN Safety Case release gates mapped</span>
+          </div>
+        </div>
+
+        <!-- Section 01 -->
+        <h2 id="scope"><span class="cn">01 系统定义、安全边界与跨界标准体系映射</span><span class="en">01 Item Definition, Safety Boundaries &amp; Cross-Domain Standards</span></h2>
+        <p class="cn">
+          按照 <code>ISO 26262-3</code> 相关项定义（Item Definition）与 <code>SAE ARP4754B</code> 飞机及系统开发指南<sup><a class="fv-citation" href="#ref2">[2]</a></sup><sup><a class="fv-citation" href="#ref3">[3]</a></sup>，安全分析的首要前提是清晰界定物理边界、运行环境（ODD/ODC）及两域“安全状态（Safe State）”的根本差异。道路车辆出现严重电控故障时，可以降级滑行至路肩并切断高压母线（Zero-Power Safe State）；而多旋翼飞行器一旦在空中切断主推进电源，瞬间丧失升力即等同于灾难性坠毁，其安全状态必须是<strong>“维持可控升力与姿态直至安全接地（Continued Controlled Flight &amp; Landing）”</strong>。
+        </p>
+        <p class="en">
+          Per <code>ISO 26262-3</code> and <code>SAE ARP4754B</code><sup><a class="fv-citation" href="#ref2">[2]</a></sup><sup><a class="fv-citation" href="#ref3">[3]</a></sup>, rigorous safety analysis starts by defining item boundaries and reconciling incompatible "Safe State" definitions. A ground car can coast to the shoulder and open its HV contactors, whereas de-energizing a multirotor airborne causes immediate free-fall; its safe state must preserve controlled thrust through touchdown.
+        </p>
+
+        <div class="fv-table-wrap">
+          <table class="fv-table">
+            <thead>
+              <tr>
+                <th><span class="cn">工程域</span><span class="en">Engineering Domain</span></th>
+                <th><span class="cn">核心相关项与物理边界</span><span class="en">Item &amp; Physical Boundary</span></th>
+                <th><span class="cn">主导安全标准 / 法规</span><span class="en">Governing Safety Standards</span></th>
+                <th><span class="cn">失效度量与安全状态定义</span><span class="en">Failure Metric &amp; Safe State</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong><span class="cn">道路母舰域</span><span class="en">Road Mothership</span></strong></td>
+                <td><span class="cn">三轴 6×6 增程底盘、后轮转向、800V 车端电池/增程发电、道路智驾感知</span><span class="en">3-axle 6x6 EREV chassis, rear steer, 800V pack/generator, ADAS</span></td>
+                <td><code>ISO 26262:2018</code>, <code>ISO 21448</code>, <code>GB 38031-2025</code>, <code>GB 20072</code>, <code>GA 802</code></td>
+                <td><span class="cn">ASIL A–D (PMHF &lt;10⁻⁸/h)；安全状态：限速靠边驻车 + 继电器断高压</span><span class="en">ASIL A–D (PMHF &lt;10⁻⁸/h); Safe State: pull-over &amp; HV disconnect</span></td>
+              </tr>
+              <tr>
+                <td><strong><span class="cn">陆空耦合界面</span><span class="en">Coupling Interface</span></strong></td>
+                <td><span class="cn">后舱尾门、伸缩导轨、机械锁止销、800V 盲插快充接口、车-机状态互锁总线</span><span class="en">Rear bay door, gantry rails, lock pins, 800V blind-mate plug, interlocks</span></td>
+                <td><span class="cn">无单一专属国标；取 <code>ISO 26262</code> 与 <code>ARP4761A</code> 交集最严要求</span><span class="en">No single code; governed by stricter union of <code>ISO 26262</code> &amp; <code>ARP4761A</code></span></td>
+                <td><span class="cn">双重锁定互锁 + 碰撞 Pyrofuses 秒级隔离；行车中严禁解锁</span><span class="en">Dual mechanical/electronic interlocks + crash pyrofuse isolation</span></td>
+              </tr>
+              <tr>
+                <td><strong><span class="cn">航空飞行体域</span><span class="en">X3-F Air Module</span></strong></td>
+                <td><span class="cn">六旋翼双涵道电推（6×EPU）、碳纤维折叠臂、360 Wh/kg 双航空电池、飞控/单杆、弹射伞</span><span class="en">6-rotor dual-duct DEP, carbon folding booms, 360 Wh/kg dual pack, FCC, chute</span></td>
+                <td><code>CAAC CCAR-21-R5</code> (X3-F 专用条件<sup><a class="fv-citation" href="#ref4">[4]</a></sup>), <code>SAE ARP4761A</code><sup><a class="fv-citation" href="#ref5">[5]</a></sup>, <code>EASA SC-VTOL</code><sup><a class="fv-citation" href="#ref6">[6]</a></sup>, <code>DO-178C</code></td>
+                <td><span class="cn">DAL A–D (10⁻⁷–10⁻⁹/fh)；安全状态：OEI 受控降落或高空开伞迫降</span><span class="en">DAL A–D (10⁻⁷–10⁻⁹/fh); Safe State: controlled OEI landing or chute</span></td>
+              </tr>
+              <tr>
+                <td><strong><span class="cn">运行与人员生态</span><span class="en">Ops &amp; Human Context</span></strong></td>
+                <td><span class="cn">C1 地面驾照、SPL 运动飞行执照、飞行营地净空场地、空域申报与地面围观人员</span><span class="en">C1 road license, CCAR-61 SPL pilot, camp pads, airspace clearance, bystanders</span></td>
+                <td><code>CCAR-61</code>, <code>ISO 34502:2022</code>, <code>ISO/SAE 21434:2021</code></td>
+                <td><span class="cn">严禁商业载客；昼间 VMC；禁止人员屏蔽核心防撞安全策略</span><span class="en">Daytime VMC private/training only; no safety-bypass modes allowed</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Section 02 -->
+        <h2 id="cast"><span class="cn">02 实证事故逆向剖析（CAST）：2025 年长春航展双机编队接触起火事件</span><span class="en">02 Empirical Accident Analysis via CAST: The 2025 Changchun Rehearsal Incident</span></h2>
+        <p class="cn">
+          任何纸面安全模型都必须经受真实物理世界失事案例的检验。2025 年 9 月 16 日下午，在吉林长春航展预演及双机编队训练期间，两架小鹏汇天「陆地航母」飞行体（eVTOL）因空中飞行间距过近发生接触碰撞：其中一架正常着陆，另一架机身受损并在着陆过程中起火<sup><a class="fv-citation" href="#ref7">[7]</a></sup><sup><a class="fv-citation" href="#ref8">[8]</a></sup>。据公开媒体及后续披露，虽然现场处置及时且未造成致命伤亡（至少一名人员送医但无生命危险），但报道同时指出，该飞行器虽配备“智能碰撞预警系统”，<strong>在当时特定编队特技预演模式下处于关闭状态</strong><sup><a class="fv-citation" href="#ref8">[8]</a></sup>。
+        </p>
+        <p class="en">
+          Paper safety cases must be anchored in real empirical incidents. On 16 September 2025, during a pre-show dual-aircraft formation rehearsal for the Changchun Air Show, two XPeng AeroHT air modules collided mid-air due to insufficient separation: one landed safely while the second sustained airframe damage and caught fire upon landing<sup><a class="fv-citation" href="#ref7">[7]</a></sup><sup><a class="fv-citation" href="#ref8">[8]</a></sup>. While emergency crews extinguished the fire and injuries were non-life-threatening, subsequent reports noted that the onboard collision-warning system had been disabled for the tight formation display<sup><a class="fv-citation" href="#ref8">[8]</a></sup>.
+        </p>
+
+        <div class="fv-callout callout-warn">
+          <strong><span class="cn">为何必须用 CAST（而非单纯归咎“飞行员间距判断失误”）？</span><span class="en">Why CAST Instead of Blaming "Pilot Spacing Error"?</span></strong>
+          <p>
+            <span class="cn">依据 Nancy Leveson 提出的系统理论事故模型（STAMP/CAST）<sup><a class="fv-citation" href="#ref9">[9]</a></sup>，把事故简单归咎为“人为间距过近”会掩盖真正的系统性缺陷：如果一款面向 C 端个人销售的航空器允许操作者在双机近距飞行时彻底关闭防撞保护，且未对高能量密度电池着陆撞击建立足够抗燃结构阻隔，那么同样的问题未来将在普通车主结伴出游的“多机伴飞”场景中重演。</span>
+            <span class="en">Under STAMP/CAST systems theory<sup><a class="fv-citation" href="#ref9">[9]</a></sup>, stopping at "pilot error" obscures systemic control flaws: any architecture that permits disabling collision-avoidance protections during close flight—without an irreducible separation geofence—creates a latent hazard that will recur in future multi-owner camp flights.</span>
+          </p>
+        </div>
+
+        <div class="fv-table-wrap">
+          <table class="fv-table">
+            <thead>
+              <tr>
+                <th><span class="cn">CAST 事故层级</span><span class="en">CAST Hierarchy Tier</span></th>
+                <th><span class="cn">观察到的失效控制行为 / 状态</span><span class="en">Observed Control Flaw / State</span></th>
+                <th><span class="cn">系统工程根因与过程模型缺陷</span><span class="en">Root Cause &amp; Process Model Flaw</span></th>
+                <th><span class="cn">派生安全设计修正要求</span><span class="en">Derived Safety Requirement</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong><span class="cn">L1 · 物理与能源层</span><span class="en">L1 · Physical &amp; Energy</span></strong></td>
+                <td><span class="cn">旋翼/涵道空中接触 → 结构失稳硬着陆 → 落地起火冒浓烟</span><span class="en">Mid-air contact → hard impact landing → post-crash thermal fire</span></td>
+                <td><span class="cn">高速碳纤维旋翼抗撞损阈值低；着陆剧烈冲击可能刺穿或短路高比能电芯并引燃壳体</span><span class="en">Low rotor impact tolerance; landing shock compromises high-energy cell isolation</span></td>
+                <td><span class="cn">电池包底部/侧向增设抗冲击吸能蜂窝与 Pyrofuses 撞击毫秒级断电</span><span class="en">Add impact-absorbing tray + millisecond crash pyrofuse cutoff</span></td>
+              </tr>
+              <tr>
+                <td><strong><span class="cn">L2 · 技术控制与预警层</span><span class="en">L2 · Technical Control</span></strong></td>
+                <td><span class="cn">“智能碰撞预警系统”在编队演练期间被人工关闭<sup><a class="fv-citation" href="#ref8">[8]</a></sup></span><span class="en">Smart collision-warning system manually disabled during rehearsal<sup><a class="fv-citation" href="#ref8">[8]</a></sup></span></td>
+                <td><span class="cn">功能使能权限缺乏安全降级边界：允许“完全关闭”而非切换至“缩距编队保护模式”</span><span class="en">Binary disable option instead of degraded "tight-formation safety envelope" mode</span></td>
+                <td><span class="cn"><strong>P0 硬约束：</strong>取消全关闭开关；最低硬防撞球壳半径不可被 HMI 屏蔽</span><span class="en"><strong>P0 Mandate:</strong> Eliminate full disable switch; enforce non-bypassable hard-bubble limit</span></td>
+              </tr>
+              <tr>
+                <td><strong><span class="cn">L3 · 人机交互与飞行员</span><span class="en">L3 · Pilot &amp; HMI</span></strong></td>
+                <td><span class="cn">双机相对距离与闭合速率判断偏差导致轨迹重叠</span><span class="en">Misjudgment of inter-aircraft clearance &amp; closure rate</span></td>
+                <td><span class="cn">低空多旋翼在缺乏立体空速/相对测距告警时，人眼对无参照蓝天背景的深度感知极易失真</span><span class="en">Human depth perception degrades sharply against featureless sky without relative-range cues</span></td>
+                <td><span class="cn">HUD/单杆集成强制触觉反向推力与 UWB/ADS-B 相对间距告警</span><span class="en">Integrate tactile stick force-feedback + UWB/ADS-B proximity floor</span></td>
+              </tr>
+              <tr>
+                <td><strong><span class="cn">L4 · 组织与运行治理层</span><span class="en">L4 · Org &amp; Ops Governance</span></strong></td>
+                <td><span class="cn">航展预演紧凑编队下缺失独立“防撞软件联锁审查”</span><span class="en">Airshow rehearsal prioritized visual spacing without interlock governance</span></td>
+                <td><span class="cn">运行规则把“特技展示需求”置于“自动化安全包线”之上，缺少特许飞行前的配置冻结审计</span><span class="en">Show-choreography pressures overrode automation safety envelopes prior to permit flight</span></td>
+                <td><span class="cn">建立飞行前安全构型基线校验（Pre-Flight Safety Config Lock）与黑匣子追责机制</span><span class="en">Enforce Pre-Flight Safety Config Lock &amp; tamper-evident flight telemetry</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Section 03 -->
+        <h2 id="hara-fha"><span class="cn">03 双域危害识别：航空 FHA（ARP4761A）与道路/耦合 HARA（ISO 26262）</span><span class="en">03 Dual-Domain Hazard Analysis: Aviation FHA &amp; Automotive/Coupling HARA</span></h2>
+        <p class="cn">
+          为消除“单一标准盲区”，本节分别依据航空界 <code>SAE ARP4761A</code>（2023 版）对 X3-F 开展功能危险性分析（FHA）<sup><a class="fv-citation" href="#ref5">[5]</a></sup>，并依据汽车界 <code>ISO 26262-3</code> 对陆行体及车载耦合分合系统开展危害分析与风险评估（HARA）<sup><a class="fv-citation" href="#ref2">[2]</a></sup>。
+        </p>
+        <p class="en">
+          To eliminate single-standard blind spots, we conduct an Aviation Functional Hazard Assessment (FHA) per <code>SAE ARP4761A</code><sup><a class="fv-citation" href="#ref5">[5]</a></sup> for the X3-F module alongside an Automotive Hazard Analysis and Risk Assessment (HARA) per <code>ISO 26262-3</code><sup><a class="fv-citation" href="#ref2">[2]</a></sup> for the 6x6 carrier and automated docking interface.
+        </p>
+
+        <h3><span class="cn">3.1 X3-F 航空器功能危险性分析（FHA）</span><span class="en">3.1 X3-F Aviation Functional Hazard Assessment (FHA)</span></h3>
+        <div class="fv-table-wrap">
+          <table class="fv-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th><span class="cn">飞行阶段 / 失效功能</span><span class="en">Phase / Failure Condition</span></th>
+                <th><span class="cn">整机与乘员影响</span><span class="en">Aircraft &amp; Occupant Effect</span></th>
+                <th><span class="cn">危险等级</span><span class="en">Classification</span></th>
+                <th><span class="cn">安全目标概率 / DAL</span><span class="en">Objective / DAL</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>FHA-01</code></td>
+                <td><span class="cn">悬停/爬升段双电池或 800V 主母线全失电</span><span class="en">Total 800V bus / dual-pack power loss in hover</span></td>
+                <td><span class="cn">瞬时全部失升；若高度 &lt;50 m 无法充分开伞，导致重度坠毁伤亡</span><span class="en">Immediate total thrust loss; fatal impact if inside low-AGL chute dead-zone</span></td>
+                <td><span class="fv-badge fv-badge-critical"><span class="cn">灾难性 Catastrophic</span><span class="en">Catastrophic</span></span></td>
+                <td>≤ 10⁻⁷–10⁻⁹ /fh · DAL A</td>
+              </tr>
+              <tr>
+                <td><code>FHA-02</code></td>
+                <td><span class="cn">单发/单桨失效后六旋翼控制分配饱和</span><span class="en">Hexacopter control saturation after single EPU loss</span></td>
+                <td><span class="cn">丧失俯仰/偏航解耦稳定，螺旋坠落并危及地面第三方人员</span><span class="en">Uncontrolled yaw-roll spin threatening occupants &amp; ground third parties</span></td>
+                <td><span class="fv-badge fv-badge-critical"><span class="cn">灾难性 Catastrophic</span><span class="en">Catastrophic</span></span></td>
+                <td>≤ 10⁻⁷–10⁻⁹ /fh · DAL A</td>
+              </tr>
+              <tr>
+                <td><code>FHA-03</code></td>
+                <td><span class="cn">空中机臂折叠关节锁销非预期解锁</span><span class="en">Uncommanded folding-boom hinge unlock in flight</span></td>
+                <td><span class="cn">气动载荷下机臂折弯打桨，结构瞬间解体</span><span class="en">Aerodynamic boom collapse &amp; structural breakup</span></td>
+                <td><span class="fv-badge fv-badge-critical"><span class="cn">灾难性 Catastrophic</span><span class="en">Catastrophic</span></span></td>
+                <td><span class="cn">机械双锁冗余 · DAL A</span><span class="en">Dual mech lock · DAL A</span></td>
+              </tr>
+              <tr>
+                <td><code>FHA-04</code></td>
+                <td><span class="cn">360 Wh/kg 高镍电池空中热失控扩散</span><span class="en">In-flight 360 Wh/kg battery thermal propagation</span></td>
+                <td><span class="cn">有毒烟气侵入 270° 密闭座舱 + 结构烧蚀失效</span><span class="en">Toxic smoke ingress into cockpit + thermal structural failure</span></td>
+                <td><span class="fv-badge fv-badge-critical"><span class="cn">灾难性 Catastrophic</span><span class="en">Catastrophic</span></span></td>
+                <td>≤ 10⁻⁷–10⁻⁹ /fh · DAL A</td>
+              </tr>
+              <tr>
+                <td><code>FHA-05</code></td>
+                <td><span class="cn">双机/障碍物防撞系统被屏蔽或传感器失效</span><span class="en">Collision warning disabled / obstacle miss (VMC)</span></td>
+                <td><span class="cn">空中接触碰撞（如 2025-09-16 长春事件），造成迫降损坏或起火</span><span class="en">Mid-air collision (cf. Changchun 2025-09-16) &amp; impact fire</span></td>
+                <td><span class="fv-badge fv-badge-high"><span class="cn">危险 Hazardous</span><span class="en">Hazardous</span></span></td>
+                <td>≤ 10⁻⁶ /fh · DAL B</td>
+              </tr>
+              <tr>
+                <td><code>FHA-06</code></td>
+                <td><span class="cn">IMU/气压/GNSS 姿态估计漂移致单杆失准</span><span class="en">AHRS / GNSS drift corrupting single-stick law</span></td>
+                <td><span class="cn">自动悬停漂移或误触发包线限制，显著增加操纵负荷</span><span class="en">Uncommanded drift or spurious envelope limiting; high workload</span></td>
+                <td><span class="fv-badge fv-badge-high"><span class="cn">危险 Hazardous</span><span class="en">Hazardous</span></span></td>
+                <td>≤ 10⁻⁶ /fh · DAL B</td>
+              </tr>
+              <tr>
+                <td><code>FHA-07</code></td>
+                <td><span class="cn">紧急触发时整机弹射降落伞火工失效</span><span class="en">Ballistic parachute squib/deployment failure</span></td>
+                <td><span class="cn">极端兜底手段丧失（与其他主失效叠加构成灾难）</span><span class="en">Loss of last-resort recovery path upon primary failure</span></td>
+                <td><span class="fv-badge fv-badge-med"><span class="cn">重大 Major</span><span class="en">Major</span></span></td>
+                <td>≤ 10⁻⁵ /demand · DAL C</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3><span class="cn">3.2 道路与陆空耦合界面 HARA 分析（ISO 26262）</span><span class="en">3.2 Road &amp; Coupling Interface HARA (ISO 26262)</span></h3>
+        <div class="fv-table-wrap">
+          <table class="fv-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th><span class="cn">危害事件与运行场景</span><span class="en">Hazardous Event &amp; Scenario</span></th>
+                <th>S / E / C</th>
+                <th>ASIL</th>
+                <th><span class="cn">导出安全目标 (Safety Goal)</span><span class="en">Safety Goal</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>HARA-01</code></td>
+                <td><span class="cn">高速公路行驶（100 km/h）期间后舱盖及机库锁止非预期解锁滑出</span><span class="en">Inadvertent rear-bay unlock &amp; aircraft slide-out at 100 km/h</span></td>
+                <td>S3 · E4 · C3</td>
+                <td><span class="fv-badge fv-badge-critical">ASIL D</span></td>
+                <td><code>SG-01</code>: <span class="cn">车速 &gt;0 km/h 时硬线切断分合执行器电源并维持机械自锁</span><span class="en">Hardware-inhibit actuator power at v &gt; 0 with fail-safe mechanical lock</span></td>
+              </tr>
+              <tr>
+                <td><code>HARA-02</code></td>
+                <td><span class="cn">高速公路严重追尾后，车尾结构侵入后备舱挤压 X3-F 航空电池致爆燃</span><span class="en">High-speed rear-end crash crushes stowed X3-F 800V pack causing fire</span></td>
+                <td>S3 · E4 · C3</td>
+                <td><span class="fv-badge fv-badge-critical">ASIL D</span></td>
+                <td><code>SG-02</code>: <span class="cn">满足 GB 20072 后碰撞溃缩吸能隔离 + BMS 碰撞断电零热蔓延</span><span class="en">Rear crash-box energy absorption + BMS pyrotechnic isolation</span></td>
+              </tr>
+              <tr>
+                <td><code>HARA-03</code></td>
+                <td><span class="cn">湿滑/雨天进行自动分合时 800V 盲插接插件绝缘破损引发高压电击或电弧</span><span class="en">HV shock or arc at 800V blind-mate coupler during wet undocking</span></td>
+                <td>S3 · E3 · C2</td>
+                <td><span class="fv-badge fv-badge-high">ASIL C</span></td>
+                <td><code>SG-03</code>: <span class="cn">预充电前执行绝缘阻抗自检 + 解锁前物理强断高压（&lt;60V）</span><span class="en">Pre-mate IMD check + physical HVIL de-energization (&lt;60V) prior to unlatch</span></td>
+              </tr>
+              <tr>
+                <td><code>HARA-04</code></td>
+                <td><span class="cn">6×6 母舰后轮主动转向机构在变道时非预期大角度偏转</span><span class="en">Uncommanded rear-axle steering deflection during highway lane change</span></td>
+                <td>S3 · E4 · C2</td>
+                <td><span class="fv-badge fv-badge-critical">ASIL D</span></td>
+                <td><code>SG-04</code>: <span class="cn">双余度转角传感校验，故障 20 ms 内回归机械中位锁死</span><span class="en">Dual-channel angle plausibility + mechanical centering lock ≤20 ms</span></td>
+              </tr>
+              <tr>
+                <td><code>HARA-05</code></td>
+                <td><span class="cn">自动收放滑轨期间人员站立在尾门工作包络内被机械夹伤或桨叶碰伤</span><span class="en">Bystander crushed/struck inside telescoping gantry zone during auto-stow</span></td>
+                <td>S2 · E3 · C2</td>
+                <td><span class="fv-badge fv-badge-med">ASIL B</span></td>
+                <td><code>SG-05</code>: <span class="cn">毫米波/视觉近场电子围栏 + 物理力矩限制 + 声光预警停止</span><span class="en">Close-range radar/vision safety curtain + torque limit + E-stop</span></td>
+              </tr>
+              <tr>
+                <td><code>HARA-06</code></td>
+                <td><span class="cn">近 4.5 t 满载工况下连续长下坡行车制动热衰退与驻车溜坡</span><span class="en">Brake fade or park-pawl slip on steep grade near 4,500 kg GVWR</span></td>
+                <td>S3 · E3 · C2</td>
+                <td><span class="fv-badge fv-badge-high">ASIL C</span></td>
+                <td><code>SG-06</code>: <span class="cn">线控制动双回路 + 6×6 电制动能量回收冗余 + 双电子驻车钳</span><span class="en">Dual-circuit EHB + 6x6 regen fallback + dual EPB clamping</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Interactive Widget #1: Dual-Domain Risk Calculator -->
+        <section class="sim-card" id="hara-fha-calculator" aria-label="交互式 ISO 26262 HARA 与 ARP4761A FHA 双域风险标定器">
+          <div class="sim-header">
+            <h4>
+              <span class="cn">交互式双域危害标定器（ISO 26262 ASIL × ARP4761A DAL）</span>
+              <span class="en">Interactive Dual-Domain Risk Matrix Calculator</span>
+            </h4>
+          </div>
+
+          <div class="preset-bar" id="riskPresetBar">
+            <button type="button" class="preset-btn active" onclick="loadRiskPreset('dock_unlock', this)"><span class="cn">预设1：高速行车机库误解锁</span><span class="en">Preset 1: Highway Bay Unlock</span></button>
+            <button type="button" class="preset-btn" onclick="loadRiskPreset('oei_hover', this)"><span class="cn">预设2：悬停单发失控</span><span class="en">Preset 2: Hover OEI Loss</span></button>
+            <button type="button" class="preset-btn" onclick="loadRiskPreset('rear_fire', this)"><span class="cn">预设3：追尾引发舱内电池热失控</span><span class="en">Preset 3: Rear-Crash Pack Fire</span></button>
+            <button type="button" class="preset-btn" onclick="loadRiskPreset('slope_dock', this)"><span class="cn">预设4：野外斜坡自动对准卡滞</span><span class="en">Preset 4: Field Slope Misalign</span></button>
+          </div>
+
+          <div class="sim-grid">
+            <div class="sim-controls">
+              <div class="sim-control">
+                <label><span><span class="cn">道路域严重度 S (ISO 26262-3)</span><span class="en">Road Severity S</span></span></label>
+                <select id="haraS">
+                  <option value="0">S0 — 无伤害 / No injuries</option>
+                  <option value="1">S1 — 轻中度伤害 / Light-moderate</option>
+                  <option value="2">S2 — 重伤可存活 / Severe life-threatening</option>
+                  <option value="3" selected>S3 — 危及生命或致命 / Life-threatening or fatal</option>
+                </select>
+              </div>
+              <div class="sim-control">
+                <label><span><span class="cn">暴露概率 E (Exposure)</span><span class="en">Road Exposure E</span></span></label>
+                <select id="haraE">
+                  <option value="1">E1 — 极低概率 (&lt;1%)</option>
+                  <option value="2">E2 — 低概率 (一般场景)</option>
+                  <option value="3">E3 — 中等概率 (一般城郊/偶发工况)</option>
+                  <option value="4" selected>E4 — 高概率 (高速公路/日常高频行驶)</option>
+                </select>
+              </div>
+              <div class="sim-control">
+                <label><span><span class="cn">驾驶员可控度 C (Controllability)</span><span class="en">Driver Controllability C</span></span></label>
+                <select id="haraC">
+                  <option value="0">C0 — 完全可控</option>
+                  <option value="1">C1 — 简单可控 (&gt;99%)</option>
+                  <option value="2">C2 — 常规可控 (90%–99%)</option>
+                  <option value="3" selected>C3 — 难以或不可控 (&lt;90%)</option>
+                </select>
+              </div>
+              <div class="sim-control">
+                <label><span><span class="cn">航空域危害等级 (ARP4761A)</span><span class="en">Aviation Severity (ARP4761A)</span></span></label>
+                <select id="fhaSev">
+                  <option value="minor">Minor — 轻微工作量上升</option>
+                  <option value="major">Major — 显著性能降级/乘员不适</option>
+                  <option value="hazardous" selected>Hazardous — 重伤或极高载荷裕度削减</option>
+                  <option value="catastrophic">Catastrophic — 灾难性坠毁/无法安全着陆</option>
+                </select>
+              </div>
+              <div class="sim-control">
+                <label><span><span class="cn">适航目标类别 (SC-VTOL 对标)</span><span class="en">Airworthiness Category</span></span></label>
+                <select id="fhaCat">
+                  <option value="basic" selected>Basic / LSA（非拥挤区私人娱乐/培训）</option>
+                  <option value="enhanced">Enhanced（密集区 / 商业载客演进对标）</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="sim-results">
+              <div class="sim-metric wide" id="outAsilBox">
+                <span class="lbl"><span class="cn">道路域导出等级与随机硬件失效指标 (ISO 26262)</span><span class="en">Automotive ASIL &amp; PMHF Target</span></span>
+                <strong class="num" id="outAsilVal">ASIL C · &lt; 10⁻⁷ / h</strong>
+              </div>
+              <div class="sim-metric wide" id="outFhaBox">
+                <span class="lbl"><span class="cn">航空域导出 DAL 与许可失效概率 (ARP4761A)</span><span class="en">Aviation DAL &amp; Probability Target</span></span>
+                <strong class="num" id="outFhaVal">DAL B · ≤ 10⁻⁶ / fh</strong>
+              </div>
+              <div class="sim-metric wide">
+                <span class="lbl"><span class="cn">双域联合设计仲裁结论</span><span class="en">Cross-Domain Design Arbitration</span></span>
+                <strong class="num" style="font-size:13px;line-height:1.5;" id="outRiskBridge">—</strong>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Section 04 -->
+        <h2 id="stpa"><span class="cn">04 系统理论过程分析（STPA）：分体式耦合控制结构与不安全控制行为</span><span class="en">04 STPA: Hierarchical Control Structure &amp; Unsafe Control Actions</span></h2>
+        <p class="cn">
+          传统 FMEA/FTA 擅长处理随机硬件损坏，却难以捕捉类似“长春航展防撞系统被关闭”或“3° 坡度对接传感器反馈失真”这类<strong>零硬件损坏下的系统交互失控</strong>。遵循 MIT <code>STPA Handbook</code>（2018）<sup><a class="fv-citation" href="#ref9">[9]</a></sup>，首先定义系统级损失（<code>L1</code> 乘员/地面人员伤亡、<code>L2</code> 航空器/母舰损毁起火、<code>L3</code> 公共基础设施受损、<code>L4</code> 适航/道路合规吊销）与 8 项系统级危险（<code>H1–H8</code>），并建立跨陆空四级分层安全控制结构：
+        </p>
+        <p class="en">
+          Traditional reliability tools struggle to capture zero-fault interaction failures such as disabling collision alerts or slope-induced docking confusion. Following the MIT <code>STPA Handbook</code><sup><a class="fv-citation" href="#ref9">[9]</a></sup>, we define system losses (<code>L1–L4</code>), hazards (<code>H1–H8</code>), and the 4-tier hierarchical control structure below:
+        </p>
+
+        <!-- Custom Vector SVG #1: STPA Control Structure -->
+        <figure class="fv-figure">
+          <svg viewBox="0 0 760 360" role="img" aria-label="陆地航母 STPA 分层安全控制结构图">
+            <defs>
+              <marker id="arrDark" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#173b4d"/>
+              </marker>
+              <marker id="arrMuted" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#6b7280"/>
+              </marker>
+            </defs>
+            <rect width="760" height="360" fill="#fbfcfd"/>
+            <text x="18" y="22" fill="#102d3c" font-size="11.5" font-weight="700" font-family="sans-serif">STPA 分层控制结构：控制动作 (↓) 与反馈通道 (↑) / Hierarchical Control Structure</text>
+            <line x1="18" y1="30" x2="742" y2="30" stroke="#d8dce0"/>
+
+            <!-- Tier 1: Regulatory / Camp Dispatch -->
+            <rect x="210" y="42" width="340" height="44" fill="#eef4f7" stroke="#173b4d" stroke-width="1.4"/>
+            <text x="380" y="61" fill="#102d3c" font-size="11.5" font-weight="700" text-anchor="middle" font-family="sans-serif">营地调度 / CAAC 空域围栏 / 云端OTA监管</text>
+            <text x="380" y="77" fill="#5e646e" font-size="9.5" text-anchor="middle" font-family="sans-serif">Camp Dispatch · Airspace Geofence · Pre-Flight Safety Lock</text>
+
+            <!-- Arrows T1 <-> T2 -->
+            <line x1="330" y1="86" x2="330" y2="118" stroke="#173b4d" stroke-width="1.4" marker-end="url(#arrDark)"/>
+            <text x="322" y="106" fill="#173b4d" font-size="9" text-anchor="end" font-family="sans-serif">空域许可 / 天气限制 / 构型解锁</text>
+            <line x1="430" y1="118" x2="430" y2="86" stroke="#6b7280" stroke-width="1.2" stroke-dasharray="3,2" marker-end="url(#arrMuted)"/>
+            <text x="438" y="106" fill="#5e646e" font-size="9" text-anchor="start" font-family="sans-serif">飞参遥测 / 异常告警</text>
+
+            <!-- Tier 2: Human Operator -->
+            <rect x="190" y="120" width="380" height="48" fill="#fdf5e7" stroke="#9a5b13" stroke-width="1.5"/>
+            <text x="380" y="140" fill="#9a5b13" font-size="11.5" font-weight="700" text-anchor="middle" font-family="sans-serif">驾驶员 / 飞行员 HMI（C1 方向盘 + 中控分合键 + 单杆操纵）</text>
+            <text x="380" y="157" fill="#5e4b2b" font-size="9.5" text-anchor="middle" font-family="sans-serif">Process Model Risk: 模式混淆 / 盲信单杆辅助 / 关闭防撞告警</text>
+
+            <!-- Arrows T2 <-> T3 Left & Right -->
+            <line x1="250" y1="168" x2="200" y2="206" stroke="#173b4d" stroke-width="1.4" marker-end="url(#arrDark)"/>
+            <text x="195" y="186" fill="#173b4d" font-size="9" text-anchor="end" font-family="sans-serif">分合指令 / 行驶输入</text>
+            <line x1="230" y1="206" x2="280" y2="168" stroke="#6b7280" stroke-width="1.2" stroke-dasharray="3,2" marker-end="url(#arrMuted)"/>
+            <text x="275" y="196" fill="#5e646e" font-size="9" text-anchor="start" font-family="sans-serif">锁止/电量反馈</text>
+
+            <line x1="490" y1="168" x2="540" y2="206" stroke="#173b4d" stroke-width="1.4" marker-end="url(#arrDark)"/>
+            <text x="548" y="186" fill="#173b4d" font-size="9" text-anchor="start" font-family="sans-serif">单杆速率 / 触发开伞</text>
+            <line x1="460" y1="206" x2="415" y2="168" stroke="#6b7280" stroke-width="1.2" stroke-dasharray="3,2" marker-end="url(#arrMuted)"/>
+            <text x="454" y="196" fill="#5e646e" font-size="9" text-anchor="start" font-family="sans-serif">包线/防撞反馈</text>
+
+            <!-- Tier 3: Controllers (Left Ground ECU / Right Air FCC) -->
+            <rect x="40" y="208" width="290" height="54" fill="#eef4f7" stroke="#173b4d" stroke-width="1.4"/>
+            <text x="185" y="229" fill="#102d3c" font-size="11" font-weight="700" text-anchor="middle" font-family="sans-serif">母舰域控 ECU + 自动分合控制器</text>
+            <text x="185" y="246" fill="#5e646e" font-size="9.5" text-anchor="middle" font-family="sans-serif">6×6 VCU · 800V 充电管理 · 视觉对准 · 锁止检验</text>
+
+            <rect x="430" y="208" width="290" height="54" fill="#eaf5ef" stroke="#165b3d" stroke-width="1.4"/>
+            <text x="575" y="229" fill="#165b3d" font-size="11" font-weight="700" text-anchor="middle" font-family="sans-serif">X3-F 多余度飞控计算机 (FCC) + 航空 BMS</text>
+            <text x="575" y="246" fill="#2d5b44" font-size="9.5" text-anchor="middle" font-family="sans-serif">OEI 控制重构 · 防撞围栏 · 机臂解锁互锁 · 热管理</text>
+
+            <!-- Inter-controller link -->
+            <line x1="330" y1="235" x2="430" y2="235" stroke="#9a5b13" stroke-width="1.6" stroke-dasharray="4,2"/>
+            <text x="380" y="227" fill="#9a5b13" font-size="8.8" font-weight="700" text-anchor="middle" font-family="sans-serif">互锁通信总线</text>
+            <text x="380" y="249" fill="#9a5b13" font-size="8.5" text-anchor="middle" font-family="sans-serif">CAN/Eth Gateway</text>
+
+            <!-- Arrows T3 <-> T4 -->
+            <line x1="145" y1="262" x2="145" y2="294" stroke="#173b4d" stroke-width="1.4" marker-end="url(#arrDark)"/>
+            <line x1="225" y1="294" x2="225" y2="262" stroke="#6b7280" stroke-width="1.2" stroke-dasharray="3,2" marker-end="url(#arrMuted)"/>
+            <text x="137" y="282" fill="#173b4d" font-size="8.8" text-anchor="end" font-family="sans-serif">导轨/锁销/接触器</text>
+            <text x="233" y="282" fill="#5e646e" font-size="8.8" text-anchor="start" font-family="sans-serif">位移/绝缘/温度</text>
+
+            <line x1="535" y1="262" x2="535" y2="294" stroke="#173b4d" stroke-width="1.4" marker-end="url(#arrDark)"/>
+            <line x1="615" y1="294" x2="615" y2="262" stroke="#6b7280" stroke-width="1.2" stroke-dasharray="3,2" marker-end="url(#arrMuted)"/>
+            <text x="527" y="282" fill="#173b4d" font-size="8.8" text-anchor="end" font-family="sans-serif">6×EPU PWM / 弹射伞</text>
+            <text x="623" y="282" fill="#5e646e" font-size="8.8" text-anchor="start" font-family="sans-serif">转速/IMU/电芯温压</text>
+
+            <!-- Tier 4: Physical Controlled Processes -->
+            <rect x="40" y="296" width="290" height="48" fill="#102d3c"/>
+            <text x="185" y="317" fill="#ffffff" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">物理被控对象 A：母舰与后备机库物理机构</text>
+            <text x="185" y="333" fill="#9cd0e6" font-size="9" text-anchor="middle" font-family="sans-serif">6×6 制动转向 · 尾门滑轨 · 800V 盲插端子</text>
+
+            <rect x="430" y="296" width="290" height="48" fill="#102d3c"/>
+            <text x="575" y="317" fill="#ffffff" font-size="10.5" font-weight="700" text-anchor="middle" font-family="sans-serif">物理被控对象 B：X3-F 气动与高能电池系统</text>
+            <text x="575" y="333" fill="#9cd0e6" font-size="9" text-anchor="middle" font-family="sans-serif">六旋翼双涵道 · 折叠臂铰链 · 360 Wh/kg 双包 · 伞包</text>
+          </svg>
+          <figcaption>
+            <span class="cn">图 1：基于 STAMP/STPA 的「陆地航母」分层安全控制结构。控制风险高频集中于“驾驶员模式切换”、“车-机互锁网关”及“无反馈/延迟反馈的自动对准回路”。</span>
+            <span class="en">Figure 1: STPA hierarchical control structure showing downward control actions and upward feedback loops across ground ECU, air FCC, human operator, and airspace dispatch.</span>
+          </figcaption>
+        </figure>
+
+        <h3><span class="cn">4.1 关键不安全控制行为（UCA）与致因场景筛选表</span><span class="en">4.1 Key Unsafe Control Actions (UCAs) &amp; Loss Scenarios</span></h3>
+        <div class="fv-filter-bar" id="stpaFilterBar">
+          <button type="button" class="fv-filter-btn active" onclick="filterStpa('all', this)"><span class="cn">全部 UCA (12)</span><span class="en">All UCAs (12)</span></button>
+          <button type="button" class="fv-filter-btn" onclick="filterStpa('flight', this)"><span class="cn">飞行与防撞 (4)</span><span class="en">Flight &amp; Avoid (4)</span></button>
+          <button type="button" class="fv-filter-btn" onclick="filterStpa('docking', this)"><span class="cn">分合与折叠 (3)</span><span class="en">Dock &amp; Fold (3)</span></button>
+          <button type="button" class="fv-filter-btn" onclick="filterStpa('thermal', this)"><span class="cn">高压与热管理 (3)</span><span class="en">HV &amp; Thermal (3)</span></button>
+          <button type="button" class="fv-filter-btn" onclick="filterStpa('hmi', this)"><span class="cn">人机与模式切换 (2)</span><span class="en">HMI &amp; Mode (2)</span></button>
+        </div>
+
+        <div class="fv-table-wrap">
+          <table class="fv-table" id="stpaMatrixTable">
+            <thead>
+              <tr>
+                <th>UCA ID</th>
+                <th><span class="cn">控制动作与 UCA 类型</span><span class="en">Control Action &amp; Type</span></th>
+                <th><span class="cn">关联危害</span><span class="en">Hazard</span></th>
+                <th><span class="cn">致因过程模型缺陷 / 损失场景</span><span class="en">Loss Scenario / Process Model Flaw</span></th>
+                <th><span class="cn">强制安全约束 (SC)</span><span class="en">Safety Constraint</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr data-domain="flight">
+                <td><code>UCA-01</code></td>
+                <td><span class="cn"><strong>防撞避障纠正指令</strong><br><span class="fv-badge fv-badge-critical">未提供 (Not Provided)</span></span><span class="en"><strong>Collision Avoidance Cue</strong><br><span class="fv-badge fv-badge-critical">Not Provided</span></span></td>
+                <td>H2 空中碰撞</td>
+                <td><span class="cn">如 2025-09-16 长春演练情境：编队特许模式下系统允许关闭预警且无底层硬防撞围栏。</span><span class="en">Formation mode allows alert suppression without an underlying hard geofence (Changchun case).</span></td>
+                <td><code>SC-01</code>: <span class="cn">禁止任何模式完全关闭最小安全球壳排斥力矩</span><span class="en">Prohibit full suppression of minimum-bubble repulsion</span></td>
+              </tr>
+              <tr data-domain="flight">
+                <td><code>UCA-02</code></td>
+                <td><span class="cn"><strong>OEI 电机推力重分配指令</strong><br><span class="fv-badge fv-badge-critical">过晚提供 (Too Late)</span></span><span class="en"><strong>OEI Thrust Reallocation</strong><br><span class="fv-badge fv-badge-critical">Provided Too Late</span></span></td>
+                <td>H1 姿态失控</td>
+                <td><span class="cn">单电调突发开路后故障诊断去抖时间过长（&gt;50 ms），倾角已突破包线极限。</span><span class="en">Excessive fault-debounce (&gt;50 ms) lets roll/pitch diverge past recovery limit.</span></td>
+                <td><code>SC-02</code>: <span class="cn">硬件电流环直报，15 ms 内触发六旋翼降阶控制律</span><span class="en">Hardware current trip triggers degraded hex control ≤15 ms</span></td>
+              </tr>
+              <tr data-domain="flight">
+                <td><code>UCA-03</code></td>
+                <td><span class="cn"><strong>整机弹射降落伞解锁</strong><br><span class="fv-badge fv-badge-high">误提供 (Provided Unsafe)</span></span><span class="en"><strong>Ballistic Chute Fire</strong><br><span class="fv-badge fv-badge-high">Provided Unsafely</span></span></td>
+                <td>H1 迫降二次伤害</td>
+                <td><span class="cn">贴地悬停或刚接地滑跑阶段飞控误判坠毁或人员误触拉柄，低空开伞被旋翼或侧风拖曳。</span><span class="en">Spurious ground/low-hover firing entangles chute in rotors or wind drag.</span></td>
+                <td><code>SC-03</code>: <span class="cn">离地高度与下降率双门限互锁（滑橇接地载荷强制闭锁）</span><span class="en">AGL + sink-rate + weight-on-skid interlock inhibits ground fire</span></td>
+              </tr>
+              <tr data-domain="flight">
+                <td><code>UCA-04</code></td>
+                <td><span class="cn"><strong>单杆限幅与爬升率限制</strong><br><span class="fv-badge fv-badge-med">过早停止 (Stopped Soon)</span></span><span class="en"><strong>Envelope Clamping</strong><br><span class="fv-badge fv-badge-med">Stopped Too Soon</span></span></td>
+                <td>H3 失速/下洗碰撞</td>
+                <td><span class="cn">风切变或高原稀薄大气下，电池压降触发功率封顶，限制了躲避障碍所需的爬升推力。</span><span class="en">Cold/altitude battery sag triggers power clamp during obstacle climb-out.</span></td>
+                <td><code>SC-04</code>: <span class="cn">保留 15% 应急峰值放电裕度专用于防撞避险爬升</span><span class="en">Reserve 15% emergency power headroom solely for avoidance climb</span></td>
+              </tr>
+              <tr data-domain="docking">
+                <td><code>UCA-05</code></td>
+                <td><span class="cn"><strong>机库门与托架释放指令</strong><br><span class="fv-badge fv-badge-critical">行驶中误提供</span></span><span class="en"><strong>Bay Door &amp; Gantry Release</strong><br><span class="fv-badge fv-badge-critical">Provided in Transit</span></span></td>
+                <td>H4 公路坠机事故</td>
+                <td><span class="cn">轮速信号丢帧或 CAN 网关被干扰，误报车速=0 导致公路行车中尾门解锁。</span><span class="en">Dropped wheel-speed frame misreads v=0, commanding unlock on highway.</span></td>
+                <td><code>SC-05</code>: <span class="cn">车速+档位P档+电子驻车三路硬线“与门”方允许释放</span><span class="en">Hardwired AND-gate of v=0, Park gear, and EPB engaged</span></td>
+              </tr>
+              <tr data-domain="docking">
+                <td><code>UCA-06</code></td>
+                <td><span class="cn"><strong>斜坡自动回收对准锁止</strong><br><span class="fv-badge fv-badge-high">参数错误 / 未锁死</span></span><span class="en"><strong>Slope Auto-Latch Cmd</strong><br><span class="fv-badge fv-badge-high">False Lock Confirm</span></span></td>
+                <td>H4 机臂受振脱出</td>
+                <td><span class="cn">野外 4° 斜坡下微动开关被泥沙卡滞误发“到位信号”，实则仅单侧锁销啮合。</span><span class="en">Mud jams micro-switch reporting false "latched" with one pin unseated.</span></td>
+                <td><code>SC-06</code>: <span class="cn">行程开关 + 拉力/扭矩校验 + 非接触霍尔三重锁止反馈</span><span class="en">Triple-verify latch via limit switch, torque, and Hall sensor</span></td>
+              </tr>
+              <tr data-domain="docking">
+                <td><code>UCA-07</code></td>
+                <td><span class="cn"><strong>空中折叠关节驱动禁令</strong><br><span class="fv-badge fv-badge-critical">空中误解锁</span></span><span class="en"><strong>Boom Fold Unlock</strong><br><span class="fv-badge fv-badge-critical">Provided Airborne</span></span></td>
+                <td>H1 结构解体</td>
+                <td><span class="cn">车-机无线链路在飞离母舰边缘时受多径干扰重发“折叠收纳”帧。</span><span class="en">Multipath RF echo replays "fold booms" command during takeoff climb.</span></td>
+                <td><code>SC-07</code>: <span class="cn">折叠执行器在空速/旋翼通电状态下物理断电隔离</span><span class="en">Physically disconnect fold-actuator power once rotors arm</span></td>
+              </tr>
+              <tr data-domain="thermal">
+                <td><code>UCA-08</code></td>
+                <td><span class="cn"><strong>800V 盲插直流快充闭合</strong><br><span class="fv-badge fv-badge-critical">湿敏未对准即通电</span></span><span class="en"><strong>800V Blind-Mate Close</strong><br><span class="fv-badge fv-badge-critical">Energized Unseated</span></span></td>
+                <td>H5 电弧起火触电</td>
+                <td><span class="cn">雨雪天气充电座凝露且对准未完全到位，预充继电器抢先闭合引发高压拉弧。</span><span class="en">Rain condensation or partial seating triggers 800V arc on contactor close.</span></td>
+                <td><code>SC-08</code>: <span class="cn">HVIL 互锁环+绝缘电阻&gt;500 Ω/V 通过后方可闭合主继电器</span><span class="en">Enforce HVIL loop + IMD &gt;500 Ω/V pass before pre-charge</span></td>
+              </tr>
+              <tr data-domain="thermal">
+                <td><code>UCA-09</code></td>
+                <td><span class="cn"><strong>飞行体高倍率热失控抑制</strong><br><span class="fv-badge fv-badge-critical">热管理未启动</span></span><span class="en"><strong>Aviation Thermal Cooling</strong><br><span class="fv-badge fv-badge-critical">Not Provided</span></span></td>
+                <td>H6 空中起火</td>
+                <td><span class="cn">脱离母舰后飞行器失去地面大流量液冷回路，25C 大电流爬升触发局部电芯温升失控。</span><span class="en">Once undocked from mothership chiller, 25C climb drives localized cell runaway.</span></td>
+                <td><code>SC-09</code>: <span class="cn">电芯间气凝胶隔热 + 相变吸热 + 定向泄压防喷入座舱</span><span class="en">Aerogel inter-cell barriers + directed vent away from cockpit</span></td>
+              </tr>
+              <tr data-domain="thermal">
+                <td><code>UCA-10</code></td>
+                <td><span class="cn"><strong>碰撞后高压熔断器切断</strong><br><span class="fv-badge fv-badge-critical">延迟切断 (&gt;100 ms)</span></span><span class="en"><strong>Crash Pyrofuses Cutoff</strong><br><span class="fv-badge fv-badge-critical">Provided Too Late</span></span></td>
+                <td>H6 撞后二次爆燃</td>
+                <td><span class="cn">母舰追尾触发气囊，但未同步向舱内收纳的 X3-F BMS 发送碰撞断高压硬线信号。</span><span class="en">Rear crash fires airbags without hardwired cutoff to stowed X3-F BMS.</span></td>
+                <td><code>SC-10</code>: <span class="cn">ACU 碰撞信号直连车/机双 BMS，5 ms 内同步引爆高压熔断</span><span class="en">Direct ACU crash line trips both vehicle &amp; aircraft pyrofuses ≤5 ms</span></td>
+              </tr>
+              <tr data-domain="hmi">
+                <td><code>UCA-11</code></td>
+                <td><span class="cn"><strong>自动返航 vs 单杆接管切换</strong><br><span class="fv-badge fv-badge-high">模式混淆冲突</span></span><span class="en"><strong>Auto-Land vs Manual Stick</strong><br><span class="fv-badge fv-badge-high">Mode Confusion</span></span></td>
+                <td>H3 着陆侧翻/撞障</td>
+                <td><span class="cn">低电量自动返航进近时飞行员轻触单杆，导致意外退出自动降落且未及时接稳姿态。</span><span class="en">Accidental stick bump during auto-landing drops automation unexpectedly.</span></td>
+                <td><code>SC-11</code>: <span class="cn">明确“长按/力阈值突破”接管机制与强语音/灯光模式播报</span><span class="en">Require force-detent override + explicit visual/audio mode callout</span></td>
+              </tr>
+              <tr data-domain="hmi">
+                <td><code>UCA-12</code></td>
+                <td><span class="cn"><strong>起飞前营地周边人员清场核验</strong><br><span class="fv-badge fv-badge-med">未提供阻止起飞</span></span><span class="en"><strong>Takeoff Pad Clear Check</strong><br><span class="fv-badge fv-badge-med">Not Provided</span></span></td>
+                <td>H7 地面人员伤害</td>
+                <td><span class="cn">车内乘员或围观者位于 10 m 半径下洗气流/展开区，系统仅靠目视而无传感器锁定起飞。</span><span class="en">Bystanders remain within 10 m downwash/rotor zone with no sensor inhibit.</span></td>
+                <td><code>SC-12</code>: <span class="cn">周视雷达/视觉检测到 8 m 内活体即软锁止起飞指令</span><span class="en">Inhibit takeoff arming if perimeter sensors detect humans &lt;8 m</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Section 05 -->
+        <h2 id="fta-fmea"><span class="cn">05 故障树（FTA）、DFMEA 与共因分析（CCA）</span><span class="en">05 Fault Tree Analysis (FTA), DFMEA &amp; Common Cause Analysis (CCA)</span></h2>
+        <p class="cn">
+          为量化验证 X3-F 是否能够满足现代 eVTOL 对单点失效与累积失效概率的严格要求（如 <code>EASA SC-VTOL-01 VTOL.2250(c)</code> 与 NASA/VFS 分布式电推进容错指南<sup><a class="fv-citation" href="#ref6">[6]</a></sup><sup><a class="fv-citation" href="#ref10">[10]</a></sup>），本节针对顶事件 <code>T1: 空中灾难性失控坠毁或不可控起火</code> 构建结构化故障树，并提供最小割集概率交互仿真。
+        </p>
+        <p class="en">
+          To quantify compliance with distributed electric propulsion single-failure rules (<code>EASA SC-VTOL-01 VTOL.2250(c)</code> and NASA/VFS DPFC studies<sup><a class="fv-citation" href="#ref6">[6]</a></sup><sup><a class="fv-citation" href="#ref10">[10]</a></sup>), we construct an FTA for Top Event <code>T1: Catastrophic Loss of Flight or Uncontained Fire</code> alongside an interactive minimal cut-set simulator.
+        </p>
+
+        <!-- Custom Vector SVG #2: Fault Tree Analysis -->
+        <figure class="fv-figure">
+          <svg viewBox="0 0 760 320" role="img" aria-label="X3-F 飞行体顶事件 T1 故障树分析 (FTA) 逻辑图">
+            <rect width="760" height="320" fill="#fbfcfd"/>
+            <text x="18" y="22" fill="#102d3c" font-size="11.5" font-weight="700" font-family="sans-serif">故障树逻辑结构 (FTA) — 顶事件 T1：空中灾难性坠毁或不可控起火</text>
+            <line x1="18" y1="30" x2="742" y2="30" stroke="#d8dce0"/>
+
+            <!-- Top Event -->
+            <rect x="215" y="42" width="330" height="38" fill="#8e2424"/>
+            <text x="380" y="65" fill="#ffffff" font-size="11.5" font-weight="700" text-anchor="middle" font-family="sans-serif">T1: 空中灾难性失控坠毁 / 不可控起火 (目标 ≤10⁻⁷–10⁻⁹/fh)</text>
+
+            <!-- Top OR Gate -->
+            <line x1="380" y1="80" x2="380" y2="96" stroke="#173b4d" stroke-width="1.6"/>
+            <rect x="356" y="94" width="48" height="20" rx="10" fill="#ffffff" stroke="#173b4d" stroke-width="1.5"/>
+            <text x="380" y="108" fill="#173b4d" font-size="10" font-weight="700" text-anchor="middle" font-family="ui-monospace, monospace">OR</text>
+            <line x1="95" y1="126" x2="665" y2="126" stroke="#173b4d" stroke-width="1.5"/>
+            <line x1="380" y1="114" x2="380" y2="126" stroke="#173b4d" stroke-width="1.5"/>
+
+            <!-- Drops to 4 Branches -->
+            <line x1="95" y1="126" x2="95" y2="142" stroke="#173b4d" stroke-width="1.4"/>
+            <line x1="285" y1="126" x2="285" y2="142" stroke="#173b4d" stroke-width="1.4"/>
+            <line x1="475" y1="126" x2="475" y2="142" stroke="#173b4d" stroke-width="1.4"/>
+            <line x1="665" y1="126" x2="665" y2="142" stroke="#173b4d" stroke-width="1.4"/>
+
+            <!-- Branch 1: DEP & OEI -->
+            <rect x="16" y="142" width="158" height="44" fill="#eef4f7" stroke="#173b4d" stroke-width="1.3"/>
+            <text x="95" y="160" fill="#102d3c" font-size="10.2" font-weight="700" text-anchor="middle" font-family="sans-serif">B1: 推进失效 ∧ 伞未挽救</text>
+            <text x="95" y="176" fill="#5e646e" font-size="9" text-anchor="middle" font-family="sans-serif">Propulsion Loss + No Chute</text>
+            <rect x="75" y="196" width="40" height="18" rx="4" fill="#fdf5e7" stroke="#9a5b13" stroke-width="1.2"/>
+            <text x="95" y="209" fill="#9a5b13" font-size="9.5" font-weight="700" text-anchor="middle" font-family="ui-monospace, monospace">AND</text>
+            <line x1="95" y1="186" x2="95" y2="196" stroke="#173b4d" stroke-width="1.2"/>
+            <line x1="48" y1="224" x2="142" y2="224" stroke="#173b4d" stroke-width="1.2"/>
+            <line x1="95" y1="214" x2="95" y2="224" stroke="#173b4d" stroke-width="1.2"/>
+            <line x1="48" y1="224" x2="48" y2="236" stroke="#173b4d" stroke-width="1.2"/>
+            <line x1="142" y1="224" x2="142" y2="236" stroke="#173b4d" stroke-width="1.2"/>
+            <rect x="14" y="236" width="76" height="58" fill="#ffffff" stroke="#6d8a96"/>
+            <text x="52" y="256" fill="#102d3c" font-size="8.8" font-weight="700" text-anchor="middle" font-family="sans-serif">单发×OEI败</text>
+            <text x="52" y="270" fill="#5e646e" font-size="8.2" text-anchor="middle" font-family="sans-serif">或 独立双发</text>
+            <text x="52" y="284" fill="#9a5b13" font-size="8.2" text-anchor="middle" font-family="ui-monospace, monospace">CS1 / β·λ</text>
+            <rect x="98" y="236" width="78" height="58" fill="#ffffff" stroke="#8e2424"/>
+            <text x="137" y="256" fill="#8e2424" font-size="8.8" font-weight="700" text-anchor="middle" font-family="sans-serif">低空开伞死区</text>
+            <text x="137" y="270" fill="#5e646e" font-size="8.2" text-anchor="middle" font-family="sans-serif">&lt;50m AGL 或</text>
+            <text x="137" y="284" fill="#5e646e" font-size="8.2" text-anchor="middle" font-family="sans-serif">火工开伞失效</text>
+
+            <!-- Branch 2: Power CCF -->
+            <rect x="206" y="142" width="158" height="44" fill="#eef4f7" stroke="#173b4d" stroke-width="1.3"/>
+            <text x="285" y="160" fill="#102d3c" font-size="10.2" font-weight="700" text-anchor="middle" font-family="sans-serif">B2: 800V 能源共因全失</text>
+            <text x="285" y="176" fill="#5e646e" font-size="9" text-anchor="middle" font-family="sans-serif">Dual-Pack / Bus CCF</text>
+            <line x1="285" y1="186" x2="285" y2="236" stroke="#173b4d" stroke-width="1.2"/>
+            <rect x="210" y="236" width="150" height="58" fill="#ffffff" stroke="#6d8a96"/>
+            <text x="285" y="256" fill="#102d3c" font-size="9" font-weight="700" text-anchor="middle" font-family="sans-serif">双电池共母线或 BMS 软件</text>
+            <text x="285" y="271" fill="#5e646e" font-size="8.5" text-anchor="middle" font-family="sans-serif">同步误保护切断主继电器</text>
+            <text x="285" y="285" fill="#9a5b13" font-size="8.2" text-anchor="middle" font-family="ui-monospace, monospace">CS3: λ_bms_ccf</text>
+
+            <!-- Branch 3: Thermal Fire -->
+            <rect x="396" y="142" width="158" height="44" fill="#fbeeee" stroke="#c36b6b" stroke-width="1.3"/>
+            <text x="475" y="160" fill="#8e2424" font-size="10.2" font-weight="700" text-anchor="middle" font-family="sans-serif">B3: 空中不可控热失控</text>
+            <text x="475" y="176" fill="#5e646e" font-size="9" text-anchor="middle" font-family="sans-serif">In-Flight Cell Propagation</text>
+            <line x1="475" y1="186" x2="475" y2="236" stroke="#173b4d" stroke-width="1.2"/>
+            <rect x="400" y="236" width="150" height="58" fill="#ffffff" stroke="#c36b6b"/>
+            <text x="475" y="256" fill="#8e2424" font-size="9" font-weight="700" text-anchor="middle" font-family="sans-serif">25C 放电枝晶短路 / 撞击</text>
+            <text x="475" y="271" fill="#5e646e" font-size="8.5" text-anchor="middle" font-family="sans-serif">∧ 四层防火隔热屏障突破</text>
+            <text x="475" y="285" fill="#8e2424" font-size="8.2" text-anchor="middle" font-family="sans-serif">（弹射伞亦无法阻止火势）</text>
+
+            <!-- Branch 4: Structural / Folding Hinge -->
+            <rect x="586" y="142" width="158" height="44" fill="#eef4f7" stroke="#173b4d" stroke-width="1.3"/>
+            <text x="665" y="160" fill="#102d3c" font-size="10.2" font-weight="700" text-anchor="middle" font-family="sans-serif">B4: 折叠臂/主结构失效</text>
+            <text x="665" y="176" fill="#5e646e" font-size="9" text-anchor="middle" font-family="sans-serif">Road-Fatigued Hinge Unlock</text>
+            <line x1="665" y1="186" x2="665" y2="236" stroke="#173b4d" stroke-width="1.2"/>
+            <rect x="590" y="236" width="150" height="58" fill="#ffffff" stroke="#6d8a96"/>
+            <text x="665" y="256" fill="#102d3c" font-size="9" font-weight="700" text-anchor="middle" font-family="sans-serif">公路高频振动疲劳微裂纹</text>
+            <text x="665" y="271" fill="#5e646e" font-size="8.5" text-anchor="middle" font-family="sans-serif">∧ 起飞前 BIT 漏检导致空中</text>
+            <text x="665" y="285" fill="#5e646e" font-size="8.5" text-anchor="middle" font-family="sans-serif">折断或主锁销脱开</text>
+          </svg>
+          <figcaption>
+            <span class="cn">图 2：X3-F 飞行体顶事件 T1 故障树（FTA）。注意“弹射降落伞”通过 AND 门削弱纯动力失能后果，但对“低空死区 (&lt;50m AGL)”及“空中电池热蔓延起火”基本无缓解作用。</span>
+            <span class="en">Figure 2: Fault Tree for Top Event T1. While the ballistic parachute gates power-loss outcomes, it provides little mitigation inside the low-AGL dead-zone or during an uncontained battery fire.</span>
+          </figcaption>
+        </figure>
+
+        <!-- Interactive Widget #2: FTA Minimal Cut-Set Simulator -->
+        <section class="sim-card" id="fta-reliability-sim" aria-label="六旋翼冗余与最小割集概率交互仿真器">
+          <div class="sim-header">
+            <h4>
+              <span class="cn">交互式六旋翼冗余与最小割集失效率仿真器（FTA Cut-Set Simulator）</span>
+              <span class="en">Interactive 6-Rotor Redundancy &amp; Minimal Cut-Set Simulator</span>
+            </h4>
+            <button type="button" class="sim-reset-btn" onclick="resetFtaSim()">
+              <span class="cn">重置工程基准</span><span class="en">Reset Baselines</span>
+            </button>
+          </div>
+
+          <div class="sim-grid">
+            <div class="sim-controls">
+              <div class="sim-control">
+                <label>
+                  <span><span class="cn">单套电推单元失效率 λ<sub>EPU</sub></span><span class="en">Single EPU Failure Rate λ<sub>EPU</sub></span></span>
+                  <span class="val" id="valFtaEpu">5×10⁻⁵ /fh</span>
+                </label>
+                <input type="range" id="ftaLambdaEpu" min="1" max="50" step="1" value="5">
+                <small><span class="cn">含碳纤维桨、高速电机、800V SiC 电调（1–50 ×10⁻⁵ /fh）</span><span class="en">Covers rotor, motor, and 800V SiC inverter (1–50 ×10⁻⁵ /fh)</span></small>
+              </div>
+
+              <div class="sim-control">
+                <label>
+                  <span><span class="cn">电推共因失效 β 因子</span><span class="en">DEP Common-Cause β Factor</span></span>
+                  <span class="val" id="valFtaBeta">2.0%</span>
+                </label>
+                <input type="range" id="ftaBeta" min="0.5" max="10.0" step="0.5" value="2.0">
+                <small><span class="cn">共享固件缺陷、同批次电容老化或湿热侵入绕过六桨冗余的比例</span><span class="en">Fraction of failures bypassing motor redundancy via shared cause</span></small>
+              </div>
+
+              <div class="sim-control">
+                <label>
+                  <span><span class="cn">单发失效后 OEI 控制重构失败率</span><span class="en">OEI Reconfiguration Failure Prob.</span></span>
+                  <span class="val" id="valFtaOei">3.0%</span>
+                </label>
+                <input type="range" id="ftaOeiFail" min="0.5" max="15.0" step="0.5" value="3.0">
+                <small><span class="cn">六旋翼失一桨后偏航/滚转耦合饱和导致迫降失控的条件概率</span><span class="en">Conditional loss probability due to hexacopter yaw/roll saturation</span></small>
+              </div>
+
+              <div class="sim-control">
+                <label>
+                  <span><span class="cn">双电池/800V 母线共因全失率 λ<sub>BMS</sub></span><span class="en">Dual-Pack / Bus CCF Rate λ<sub>BMS</sub></span></span>
+                  <span class="val" id="valFtaBms">1.0×10⁻⁶ /fh</span>
+                </label>
+                <input type="range" id="ftaLambdaBms" min="0.1" max="10.0" step="0.1" value="1.0">
+              </div>
+
+              <div class="sim-control">
+                <label>
+                  <span><span class="cn">起降低空开伞死区时间占比（&lt;50 m）</span><span class="en">Low-AGL Chute Dead-Zone Exposure</span></span>
+                  <span class="val" id="valFtaLowAgl">25%</span>
+                </label>
+                <input type="range" id="ftaLowAgl" min="10" max="60" step="5" value="25">
+                <small><span class="cn">20 分钟短航时起降占比显著高于长航程固定翼飞机</span><span class="en">Short 20-min flights spend larger share near ground transition</span></small>
+              </div>
+            </div>
+
+            <div class="sim-results">
+              <div class="sim-metric">
+                <span class="lbl"><span class="cn">伞前推进/能源失控率 P<sub>loss</sub></span><span class="en">Pre-Chute Loss Rate P<sub>loss</sub></span></span>
+                <strong class="num" id="outFtaPreChute">—</strong>
+              </div>
+              <div class="sim-metric">
+                <span class="lbl"><span class="cn">伞后综合灾难概率 P<sub>cat</sub></span><span class="en">Post-Chute Catastrophic P<sub>cat</sub></span></span>
+                <strong class="num" id="outFtaCat">—</strong>
+              </div>
+              <div class="sim-metric wide">
+                <span class="lbl"><span class="cn">当前主导最小割集（瓶颈所在）</span><span class="en">Dominant Minimal Cut Set</span></span>
+                <strong class="num" style="font-size:14px;" id="outFtaDom">—</strong>
+              </div>
+              <div class="sim-metric wide" id="outFtaVerdictBox">
+                <span class="lbl"><span class="cn">适航概率裕度评估（对标 EASA SC-VTOL）</span><span class="en">Airworthiness Target Assessment</span></span>
+                <strong class="num" style="font-size:13.5px;" id="outFtaVerdict">—</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="sim-chart-box">
+            <canvas id="ftaBarCanvas" aria-label="故障树最小割集对数概率对比柱状图"></canvas>
+          </div>
+          <p class="fv-small" style="margin:10px 0 0;">
+            <span class="cn">工程推论：在基准参数（λ<sub>EPU</sub>=5×10⁻⁵, β=2%, OEI 失控 3%）下，单个电推乘以 OEI 重构失败（CS1）与共因（CS2）共同主导失控风险，单纯增加电池数量无法把灾难概率压进商业载客所需的 10⁻⁹/fh 增强门槛——这从数学上印证了 CAAC 将 X3-F 现阶段限定在 LSA 非商载娱乐的审定逻辑。</span>
+            <span class="en">Key Insight: Under baseline assumptions, single-EPU × OEI loss (CS1) and β-CCF (CS2) dominate risk, keeping P_cat around ~10⁻⁶/fh—quantitatively explaining why CAAC limits X3-F to LSA private recreation rather than dense-urban commercial air taxi (10⁻⁹/fh).</span>
+          </p>
+        </section>
+
+        <h3><span class="cn">5.1 关键跨界硬件子系统 DFMEA</span><span class="en">5.1 Critical Hardware DFMEA Summary</span></h3>
+        <div class="fv-table-wrap">
+          <table class="fv-table">
+            <thead>
+              <tr>
+                <th><span class="cn">关键零件/机构</span><span class="en">Component</span></th>
+                <th><span class="cn">潜在失效模式</span><span class="en">Failure Mode</span></th>
+                <th><span class="cn">系统级后果</span><span class="en">Effect</span></th>
+                <th>S / O / D</th>
+                <th>RPN</th>
+                <th><span class="cn">现行/建议探测与缓释措施</span><span class="en">Mitigation / Detection</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong><span class="cn">机臂折叠锁止销</span><span class="en">Folding Boom Lock Pin</span></strong></td>
+                <td><span class="cn">公路振松微裂或未完全插合</span><span class="en">Road-fatigue crack / partial seat</span></td>
+                <td><span class="cn">空中机臂折断、失控坠毁</span><span class="en">In-flight structural separation</span></td>
+                <td>10 / 3 / 4</td>
+                <td><span class="fv-badge fv-badge-critical">120</span></td>
+                <td><span class="cn">双销冗余 + 应变/霍尔起飞自检 + 100h 涡流无损探伤</span><span class="en">Dual-pin + Hall BIT + 100-hr NDT</span></td>
+              </tr>
+              <tr>
+                <td><strong><span class="cn">800V 盲插接插件</span><span class="en">800V Blind-Mate Plug</span></strong></td>
+                <td><span class="cn">沙尘/结冰导致插针接触电阻飙升</span><span class="en">Dust/ice raising contact resistance</span></td>
+                <td><span class="cn">18 min 83 kW 快充端子熔毁起火</span><span class="en">Thermal melt/fire during 83 kW charge</span></td>
+                <td>9 / 5 / 4</td>
+                <td><span class="fv-badge fv-badge-critical">180</span></td>
+                <td><span class="cn">双 NTC 测温降额 + 气吹自清洁 + 浮动导向锥</span><span class="en">Dual-NTC derating + air-purge + float cone</span></td>
+              </tr>
+              <tr>
+                <td><strong><span class="cn">双绕组电驱/电调</span><span class="en">Dual-Winding EPU</span></strong></td>
+                <td><span class="cn">SiC MOSFET 短路或相间击穿</span><span class="en">SiC short / phase breakdown</span></td>
+                <td><span class="cn">单发停转触发六旋翼 OEI 工况</span><span class="en">Triggers hexacopter OEI transition</span></td>
+                <td>8 / 4 / 3</td>
+                <td><span class="fv-badge fv-badge-high">96</span></td>
+                <td><span class="cn">定子双三相隔离绕组 + 快速熔断脱离制动</span><span class="en">Isolated dual 3-phase + phase disconnect</span></td>
+              </tr>
+              <tr>
+                <td><strong><span class="cn">单杆霍尔传感器</span><span class="en">Single-Stick Hall</span></strong></td>
+                <td><span class="cn">零点漂移或通道卡死</span><span class="en">Zero-offset drift or stuck output</span></td>
+                <td><span class="cn">错误姿态指令输入</span><span class="en">Erroneous attitude command</span></td>
+                <td>9 / 3 / 2</td>
+                <td><span class="fv-badge fv-badge-med">54</span></td>
+                <td><span class="cn">三模冗余（TMR）表决 + 超限力反馈告警</span><span class="en">Triple modular redundancy + override cue</span></td>
+              </tr>
+              <tr>
+                <td><strong><span class="cn">整机降落伞弹射筒</span><span class="en">Ballistic Chute Squib</span></strong></td>
+                <td><span class="cn">高湿盐雾下火工药柱受潮瞎火</span><span class="en">Moisture-degraded squib misfire</span></td>
+                <td><span class="cn">紧急兜底失败</span><span class="en">No emergency recovery above dead-zone</span></td>
+                <td>10 / 2 / 5</td>
+                <td><span class="fv-badge fv-badge-high">100</span></td>
+                <td><span class="cn">双发火药桥路 + 气密氦检漏 + 定期强制更换</span><span class="en">Dual bridgewire + hermetic seal + timed life</span></td>
+              </tr>
+              <tr>
+                <td><strong><span class="cn">后舱电子锁与导轨</span><span class="en">Rear Bay Latch</span></strong></td>
+                <td><span class="cn">CAN 总线毛刺误解锁</span><span class="en">Spurious CAN command unlatch</span></td>
+                <td><span class="cn">高速行驶中航空器滑出危及后车</span><span class="en">Aircraft ejection onto highway</span></td>
+                <td>10 / 2 / 3</td>
+                <td><span class="fv-badge fv-badge-med">60</span></td>
+                <td><span class="cn">P 档硬线切断 + 次级机械保险钩</span><span class="en">Park-gear hardwire + secondary mech hook</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3><span class="cn">5.2 特殊共因分析（CCA：ZSA / PRA / CMA）</span><span class="en">5.2 Common Cause Analysis (ZSA / PRA / CMA)</span></h3>
+        <div class="fv-accordion">
+          <details open>
+            <summary><span class="cn">区域安全分析（ZSA）— 母舰后备机库舱高能量密闭区</span><span class="en">Zonal Safety Analysis (ZSA) — Rear Hangar Energy Co-Location</span></summary>
+            <div class="fv-accordion-body">
+              <p class="cn">在长约 5.5 m 车体的后半段，同时密集布置了：① 增程器燃油箱与排气热端、② 车端 800V 动力线束、③ 机库自动导轨电机、④ 收纳状态的 X3-F 360 Wh/kg 高硅航空电池。ZSA 必须核查燃油蒸气泄漏遇 800V 盲插电弧或排气管高温表面的物理隔断距离（建议采用独立金属防火隔板与后舱独立强制通风检测）。</p>
+              <p class="en">The rear half of the 5.5 m chassis co-locates EREV fuel/exhaust hardware, vehicle 800V buses, gantry actuators, and the stowed 360 Wh/kg aviation pack. ZSA mandates metallic firewalls separating fuel vapors from 800V couplers plus forced bay gas/smoke sensing.</p>
+            </div>
+          </details>
+          <details>
+            <summary><span class="cn">特定风险分析（PRA）— 断桨非包容性碎片、雷击与追尾撞击</span><span class="en">Particular Risk Analysis (PRA) — Rotor Burst, Lightning &amp; Rear-Impact</span></summary>
+            <div class="fv-accordion-body">
+              <p class="cn">PRA 需覆盖：① 碳纤维桨叶飞脱（Rotor Burst）轨迹扇面内不得布置双通道飞控线束或降落伞火工管路，双涵道外壳应提供一定碎裂动能吸收；② 非金属碳纤维机身缺乏天然法拉第笼屏蔽，高强度辐射场（HIRF）与静电泄放条须经受试验验证；③ 母舰遭后车 50–80 km/h 追尾时，飞行体滑橇锁定基座不得变成刺入前排乘员舱或刺穿 X3-F 电池包的“撞锤”。</p>
+              <p class="en">PRA requires keeping dual FCC harnesses and chute lines out of the rotor burst plane, validating carbon-airframe HIRF/static bonding, and ensuring stowed aircraft skids do not act as battering rams into the front cabin or aviation pack during a 50–80 km/h rear impact.</p>
+            </div>
+          </details>
+          <details>
+            <summary><span class="cn">共模分析（CMA）— 软件同源性与高镍电芯批次效应</span><span class="en">Common Mode Analysis (CMA) — Shared Software &amp; Cell Batch Defects</span></summary>
+            <div class="fv-accordion-body">
+              <p class="cn">若 X3-F 六个电调使用完全相同的 MCU 芯片、编译器与控制固件，单一浮点溢出或看门狗时钟 BUG 可能在某一飞行工况下同时锁死全部六个推力单元（绕过硬件冗余）；同样，双航空电池包若源自同一制造批次的高硅电芯，则存在同步析锂老化衰减的共模隐患，须通过异构备份飞控通道（Dissimilar Monitor）与出厂 X-ray 全检加以解耦。</p>
+              <p class="en">Identical MCU/firmware across all six inverters risks simultaneous fleet-wide lockup from a single numerical bug; similarly, identical high-nickel cell batches risk synchronized degradation. Mitigation requires a dissimilar backup flight monitor and 100% cell X-ray screening.</p>
+            </div>
+          </details>
+        </div>
+
+        <!-- Section 06 -->
+        <h2 id="sotif"><span class="cn">06 预期功能安全（SOTIF — ISO 21448）与 ODD/ODC 运行边界</span><span class="en">06 Safety of the Intended Functionality (SOTIF) &amp; ODD Bounds</span></h2>
+        <p class="cn">
+          <code>ISO 21448:2022</code>（SOTIF）专门针对<strong>“无电子电气随机故障时，由预期功能设计不足、复杂环境触发条件或可预见误用造成的危险”</strong><sup><a class="fv-citation" href="#ref11">[11]</a></sup>。对于主打“自动分合”、“单杆轻松上手”和“野外自驾飞”的「陆地航母」，SOTIF 风险实际上比传统纯硬件随机故障更为高频和棘手。
+        </p>
+        <p class="en">
+          <code>ISO 21448:2022</code> (SOTIF) addresses hazards occurring <strong>without hardware/software faults</strong> due to functional insufficiencies, external triggering conditions, or foreseeable misuse<sup><a class="fv-citation" href="#ref11">[11]</a></sup>. For a system marketed around automated docking and "5-minute single-stick learning," SOTIF risks are more frequent than random part failures.
+        </p>
+
+        <!-- Custom Vector SVG #3: ISO 21448 Four-Quadrant Risk Reduction -->
+        <figure class="fv-figure">
+          <svg viewBox="0 0 760 250" role="img" aria-label="ISO 21448 SOTIF 四象限场景风险压缩迁移图">
+            <rect width="760" height="250" fill="#fbfcfd"/>
+            <text x="18" y="22" fill="#102d3c" font-size="11.5" font-weight="700" font-family="sans-serif">ISO 21448 SOTIF 风险演进四象限：向“已知安全区 (Area 1)”收敛</text>
+            <line x1="18" y1="30" x2="742" y2="30" stroke="#d8dce0"/>
+
+            <!-- Quadrants -->
+            <rect x="24" y="46" width="346" height="90" fill="#eaf5ef" stroke="#5b8c74" stroke-width="1.4"/>
+            <text x="36" y="66" fill="#165b3d" font-size="11" font-weight="700" font-family="sans-serif">Area 1: 已知安全 (Known Safe — 目标收敛区)</text>
+            <text x="36" y="85" fill="#2d5b44" font-size="9.5" font-family="sans-serif">• 水平硬化营地 (&lt;2°坡) 自动分合 + 近场人员雷达闭锁</text>
+            <text x="36" y="102" fill="#2d5b44" font-size="9.5" font-family="sans-serif">• 昼间 VMC + 不可屏蔽硬防撞电子围栏 + 强风/极寒 ODD 限制</text>
+            <text x="36" y="119" fill="#2d5b44" font-size="9.5" font-family="sans-serif">• 单杆明确力阈值接管 + 语音/HUD 状态确认</text>
+
+            <rect x="390" y="46" width="346" height="90" fill="#fdf5e7" stroke="#c69148" stroke-width="1.4"/>
+            <text x="402" y="66" fill="#9a5b13" font-size="11" font-weight="700" font-family="sans-serif">Area 2: 已知不安全 (Known Unsafe — 须消减)</text>
+            <text x="402" y="85" fill="#5e4b2b" font-size="9.5" font-family="sans-serif">• 长春事件暴露：编队手动关防撞导致的视觉误判碰撞</text>
+            <text x="402" y="102" fill="#5e4b2b" font-size="9.5" font-family="sans-serif">• 3°–5° 斜坡/泥泞草地自动对接对准偏差与单侧虚锁</text>
+            <text x="402" y="119" fill="#5e4b2b" font-size="9.5" font-family="sans-serif">• 野外低空细高压线/风筝线在纯视觉下漏检</text>
+
+            <rect x="390" y="146" width="346" height="86" fill="#fbeeee" stroke="#c36b6b" stroke-width="1.4"/>
+            <text x="402" y="166" fill="#8e2424" font-size="11" font-weight="700" font-family="sans-serif">Area 3: 未知不安全 (Unknown Unsafe — 长尾挖掘)</text>
+            <text x="402" y="185" fill="#5e2a2a" font-size="9.5" font-family="sans-serif">• 峡谷突发强下击暴流叠加地面效应引起近地侧翻</text>
+            <text x="402" y="202" fill="#5e2a2a" font-size="9.5" font-family="sans-serif">• -35°C 冻雨结冰瞬间增大旋翼翼型阻力 + 电池压降</text>
+            <text x="402" y="219" fill="#5e2a2a" font-size="9.5" font-family="sans-serif">• 跨车机协同 OTA 后状态机边缘死锁</text>
+
+            <rect x="24" y="146" width="346" height="86" fill="#f5f7f8" stroke="#b8c0c8" stroke-width="1.2"/>
+            <text x="36" y="166" fill="#4b525a" font-size="11" font-weight="700" font-family="sans-serif">Area 4: 未知安全 (Unknown Safe)</text>
+            <text x="36" y="187" fill="#5e646e" font-size="9.5" font-family="sans-serif">• 未经场试显式覆盖但物理规律天然稳定的宽裕飞行条件</text>
+            <text x="36" y="206" fill="#5e646e" font-size="9.5" font-family="sans-serif">• 随运营里程与车队影子模式数据回传逐步并入 Area 1</text>
+
+            <!-- Migration Arrows -->
+            <path d="M 390,91 L 370,91" stroke="#165b3d" stroke-width="2.5"/>
+            <polygon points="370,91 378,86 378,96" fill="#165b3d"/>
+            <path d="M 563,146 L 563,136" stroke="#9a5b13" stroke-width="2.2"/>
+            <polygon points="563,136 558,144 568,144" fill="#9a5b13"/>
+          </svg>
+          <figcaption>
+            <span class="cn">图 3：ISO 21448 SOTIF 风险收敛映射。核心工程任务是通过车队大数据与仿真先将 Area 3（未知不安全）揭示至 Area 2，再用 ODD 限制与不可屏蔽安全边界将其压缩入 Area 1。</span>
+            <span class="en">Figure 3: ISO 21448 SOTIF quadrant convergence mapping for field docking, wind shear, powerline perception, and anti-collision misuse.</span>
+          </figcaption>
+        </figure>
+
+        <h3><span class="cn">6.1 核心触发条件（Triggering Conditions）与明确 ODD/ODC 约束</span><span class="en">6.1 Triggering Conditions &amp; Explicit ODD/ODC Bounds</span></h3>
+        <div class="fv-table-wrap">
+          <table class="fv-table">
+            <thead>
+              <tr>
+                <th><span class="cn">触发条件 / 运行维度</span><span class="en">Trigger / ODD Dimension</span></th>
+                <th><span class="cn">无故障功能不足机理</span><span class="en">Fault-Free Insufficiency</span></th>
+                <th><span class="cn">建议强制运行设计域 (ODD / ODC) 边界</span><span class="en">Recommended Hard ODD / ODC Boundary</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong><span class="cn">野外自动分合地形坡度</span><span class="en">Field Docking Slope</span></strong></td>
+                <td><span class="cn">泥泞/砂石沉降或斜坡使滑橇与导轨发生偏转，机械对准机构强行拉入易卡滞</span><span class="en">Soft soil sinkage or &gt;3° slope causes rail binding on forced pull-in</span></td>
+                <td><span class="cn">母舰倾角传感器实时校验：横/纵坡 <strong>≤ 2.5°</strong> 方允许自动回收（超限需切换空悬移位找平）</span><span class="en">Inhibit auto-stow if chassis pitch/roll <strong>&gt; 2.5°</strong>; prompt level repositioning</span></td>
+              </tr>
+              <tr>
+                <td><strong><span class="cn">地面风速与阵风切变</span><span class="en">Surface Wind &amp; Gusts</span></strong></td>
+                <td><span class="cn">机臂折叠展开与离舰瞬间受侧风吹偏；接近地面效应区时单杆限幅与防侧翻冲突</span><span class="en">Crosswind deflects deploying aircraft; ground-effect shear fights stick clamp</span></td>
+                <td><span class="cn">分合/起降瞬间风速上限 <strong>≤ 10 m/s (5级风)</strong>，持续巡航限 <strong>≤ 14 m/s</strong>，超限锁定解锁</span><span class="en">Lock undocking above <strong>10 m/s</strong> surface wind; flight dispatch cap <strong>14 m/s</strong></span></td>
+              </tr>
+              <tr>
+                <td><strong><span class="cn">低空细缆/高压线感知</span><span class="en">Powerline / Guy-Wire</span></strong></td>
+                <td><span class="cn">直径 &lt;15 mm 农网线在强逆光或杂乱树冠背景下光学/普通雷达极易漏检</span><span class="en">Thin wires (&lt;15 mm) suffer high false-negative rate in glare or tree clutter</span></td>
+                <td><span class="cn">强制融合高精度测绘电力线图层 + 77 GHz/LiDAR 前向扫描；禁止超视距低空盲穿</span><span class="en">Fuse HD wire-corridor map + LiDAR/radar; prohibit BVLOS low-altitude flight</span></td>
+              </tr>
+              <tr>
+                <td><strong><span class="cn">“5 分钟上手”误用防范</span><span class="en">"Easy-Fly" Misuse</span></strong></td>
+                <td><span class="cn">过度宣传单杆易用性导致新手轻视气象突变、编队距与电量 VFR 返航底线</span><span class="en">Marketing ease induces overconfidence in weather, formation, and reserves</span></td>
+                <td><span class="cn">强绑定有效 SPL 执照生物/账号激活；电量达 <strong>25% SOC</strong> 强制触发不可取消自动返航</span><span class="en">Bind aircraft arming to active SPL ID; force auto-RTH at <strong>25% SOC</strong></span></td>
+              </tr>
+              <tr>
+                <td><strong><span class="cn">极寒 (-35°C) 与高原起降</span><span class="en">Arctic &amp; High Altitude</span></strong></td>
+                <td><span class="cn">空气密度降致悬停功率上升 + 低温内阻加剧压降，标称航时可能腰斩</span><span class="en">Thin air raises hover draw while cold impedance doubles sag, halving endurance</span></td>
+                <td><span class="cn">飞控实时计算空气密度与电池可用功率裕度（Dynamic MTOW/时间降额），禁止强飞</span><span class="en">Dynamic density-altitude &amp; power-margin derating inhibits takeoff if margin &lt;15%</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Section 07 -->
+        <h2 id="thermal-crash"><span class="cn">07 电池热失控（GB 38031-2025）、结构碰撞与物理安全边界</span><span class="en">07 Battery Thermal Safety (GB 38031-2025), Crashworthiness &amp; Physical Bounds</span></h2>
+        <p class="cn">
+          「陆地航母」是全行业热安全等级最特殊的运载装备之一：其车端搭载 800V 增程电池包与燃油系统，而车尾机库内又长期停放着电芯能量密度高达 <strong>360 Wh/kg、支持 25C 放电</strong>的 X3-F 航空锂电池<sup><a class="fv-citation" href="#ref12">[12]</a></sup>。值得注意的是，2025 年 3 月 28 日发布、并将于 <strong>2026 年 7 月 1 日正式实施的国家强制标准 <code>GB 38031-2025《电动汽车用动力蓄电池安全要求》</code></strong> 已取消了过去“热失控前 5 分钟报警即可”的宽松要求，全面升级为<strong>“不起火、不爆炸（且烟气不伤及乘员）”</strong>，并新增了底部撞击测试与 300 次快充循环后外部短路测试<sup><a class="fv-citation" href="#ref13">[13]</a></sup>。
+        </p>
+        <p class="en">
+          The Land Aircraft Carrier creates a unique thermal containment challenge: a ground 800V pack and ICE fuel tank coexist with a stowed <strong>360 Wh/kg, 25C</strong> aviation pack<sup><a class="fv-citation" href="#ref12">[12]</a></sup>. Crucially, China's mandatory <code>GB 38031-2025</code> (effective <strong>1 July 2026</strong>) eliminates the old 5-minute evacuation warning tolerance, enforcing strict <strong>"no fire, no explosion"</strong> thermal diffusion alongside bottom-impact and 300-cycle fast-charge short tests<sup><a class="fv-citation" href="#ref13">[13]</a></sup>.
+        </p>
+        <ul>
+          <li>
+            <span class="cn"><strong>车载与航空双标准协同考核：</strong>小鹏汇天在 2026 年 3 月披露 X3-F 专用航空电池包（四重热安全防护）已通过汽车与航空双安全认证<sup><a class="fv-citation" href="#ref12">[12]</a></sup>。然而，若将该航空电池包放在“陆行母舰后备舱”中参与整车 <code>GB 20072</code> 追尾碰撞法规认证，必须证明在 50 km/h 移动壁障追尾挤压下，母舰后防撞梁吸能盒与飞行体固定支架不会直接侵入飞行体电池箱体。</span>
+            <span class="en"><strong>Dual-Standard Crash Synergy:</strong> While ARIDGE disclosed dual auto-aviation battery safety compliance in March 2026<sup><a class="fv-citation" href="#ref12">[12]</a></sup>, stowing the pack inside the rear bay demands integrated vehicle rear-crash testing (<code>GB 20072</code>) proving zero structural intrusion from the gantry or aircraft skids.</span>
+          </li>
+          <li>
+            <span class="cn"><strong>硬着陆后起火风险控制（长春事件直接回应）：</strong>高比能硅碳负极电芯在常温针刺/热箱试验外，极易在<strong>空中坠落/硬着陆的高 g 瞬态结构撕裂</strong>下发生内短路起火（正如 2025-09-16 长春着陆起火所示）。必须在飞行器底部起落滑橇增加一次性高吸能蜂窝缓冲结构，并在检测到 &gt;8 g 撞击加速度时在 5 ms 内断开电池包各模组间高压分断熔断器（Modular Pyrofuses）。</span>
+            <span class="en"><strong>Post-Impact Fire Containment:</strong> High-silicon cells remain vulnerable to internal shorting during high-g hard landings (as seen in Changchun). Energy-absorbing honeycomb landing skids and modular pyrofuses tripping at &gt;8 g impact within 5 ms are essential.</span>
+          </li>
+          <li>
+            <span class="cn"><strong>地面下洗流与双涵道物理防护：</strong>六旋翼双涵道虽大幅降低近地人员的桨尖误触割伤风险，但近 880–960 kg 起飞重量产生的高速下洗气流（诱导速度约 14–18 m/s）在砂石营地起降时极易卷起碎石（FOD）击伤 270° 全景座舱玻璃或附近人员，营地操作须划定半径 ≥ 10 m 的地面人员净空圈。</span>
+            <span class="en"><strong>Downwash &amp; FOD Standoff:</strong> At 880–960 kg MTOW, rotor downwash (~14–18 m/s) can loft gravel/FOD at unpaved camps, mandating a ≥10 m bystander standoff radius.</span>
+          </li>
+        </ul>
+
+        <!-- Section 08 -->
+        <h2 id="cyber"><span class="cn">08 网络安全与信息安全（ISO/SAE 21434 — TARA 威胁分析）</span><span class="en">08 Cybersecurity &amp; Threat Analysis (ISO/SAE 21434 TARA)</span></h2>
+        <p class="cn">
+          「陆地航母」集成了智能座舱、车联网、云端空域预约、无线自动对接引导与多旋翼数字飞控，其攻击面横跨地面汽车网络与低空航空航电。依据 <code>ISO/SAE 21434:2021</code> 威胁分析与风险评估（TARA）方法<sup><a class="fv-citation" href="#ref14">[14]</a></sup>，对六大关键暴露面进行定级并给出纵深防御隔离架构：
+        </p>
+        <p class="en">
+          Integrating connected infotainment, cloud airspace booking, wireless docking, and fly-by-wire avionics widens the cyber attack surface across road and air domains. Below is a <code>ISO/SAE 21434:2021</code> Threat Analysis and Risk Assessment (TARA)<sup><a class="fv-citation" href="#ref14">[14]</a></sup>:
+        </p>
+
+        <div class="fv-table-wrap">
+          <table class="fv-table">
+            <thead>
+              <tr>
+                <th><span class="cn">攻击面 / 资产</span><span class="en">Attack Surface / Asset</span></th>
+                <th><span class="cn">威胁场景与攻击路径</span><span class="en">Threat Scenario &amp; Path</span></th>
+                <th><span class="cn">影响 / 可行性</span><span class="en">Impact / Feas.</span></th>
+                <th><span class="cn">风险等级</span><span class="en">Risk</span></th>
+                <th><span class="cn">核心安全防御要求</span><span class="en">Security Control</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong><code>T1</code> 车-机无线分合链路</strong></td>
+                <td><span class="cn">重放/伪造“空中折叠”或“高速行车释放”UWB/BLE 遥控帧</span><span class="en">Spoofing/replaying "fold" or "bay release" via RF link</span></td>
+                <td>Severe / Med</td>
+                <td><span class="fv-badge fv-badge-critical">Critical</span></td>
+                <td><span class="cn">双向 mTLS + 挑战-应答随机数 + 硬件速度/旋翼通电硬线否定权</span><span class="en">Mutual TLS + nonce + hardware speed/rotor-armed override</span></td>
+              </tr>
+              <tr>
+                <td><strong><code>T2</code> GNSS/RTK 导航与围栏</strong></td>
+                <td><span class="cn">地面便携式射频欺骗仪诱骗飞行体偏离营地禁飞区或降落点</span><span class="en">RF GNSS spoofing lures X3-F outside camp geofence or pad</span></td>
+                <td>Major / High</td>
+                <td><span class="fv-badge fv-badge-critical">High</span></td>
+                <td><span class="cn">多频多星座抗欺骗天线 + 视觉/惯导（VIO）独立一致性交叉表决</span><span class="en">Multi-band anti-spoof + VIO/IMU cross-check voting</span></td>
+              </tr>
+              <tr>
+                <td><strong><code>T3</code> 车-机 800V 充电总线网关</strong></td>
+                <td><span class="cn">攻破车载智能座舱后通过车-机充电通信网关向航空 BMS/FCC 注入恶意报文</span><span class="en">Lateral pivot from infotainment across charging gateway to X3-F BMS</span></td>
+                <td>Severe / Low-Med</td>
+                <td><span class="fv-badge fv-badge-high">High</span></td>
+                <td><span class="cn">车机娱乐域与 DAL-A/B 飞控物理硬件隔离；充电接口仅通单向受控白名单</span><span class="en">Physical air-gap between infotainment and FCC; strict CAN/Eth whitelist</span></td>
+              </tr>
+              <tr>
+                <td><strong><code>T4</code> 跨端 OTA 固件升级</strong></td>
+                <td><span class="cn">空中飞行过程中错误下发或篡改控制律固件、防撞门限配置</span><span class="en">Malicious OTA or mid-flight parameter flash altering control/avoid limits</span></td>
+                <td>Severe / Low</td>
+                <td><span class="fv-badge fv-badge-high">High</span></td>
+                <td><span class="cn">仅允许驻车断电下执行 HSM 硬件安全启动验签，飞行中物理写保护</span><span class="en">HSM ECDSA signature check; write-protect flash outside parked state</span></td>
+              </tr>
+              <tr>
+                <td><strong><code>T5</code> 云端锁机/空域鉴权 API</strong></td>
+                <td><span class="cn">非法越权调用远程锁机指令或伪造 SPL 执照鉴权令牌</span><span class="en">Unauthorized remote disarm API or forged SPL auth token</span></td>
+                <td>Major / Med</td>
+                <td><span class="fv-badge fv-badge-med">Medium</span></td>
+                <td><span class="cn">远程停飞策略仅在“落地停机”后生效，绝不允许空中强制切断动力</span><span class="en">Remote immobilize takes effect ONLY post-landing; never airborne</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Section 09 -->
+        <h2 id="vv"><span class="cn">09 基于场景的验证与确认体系（ISO 34502 V&amp;V 闭环）</span><span class="en">09 Scenario-Based Verification &amp; Validation Framework (ISO 34502)</span></h2>
+        <p class="cn">
+          对照 <code>ISO 34502:2022</code> 自动驾驶场景安全评价框架<sup><a class="fv-citation" href="#ref15">[15]</a></sup>及民航适航符合性验证方法（MOC），「陆地航母」的安全验证不能停留在“晴天平地展示飞行”，而必须贯穿 <strong>MIL 模型仿真 → 铁鸟台架 HIL 故障注入 → 整车道路碰撞与振动联试 → 营地边界实飞 → 沙盒车队持续监测</strong> 五层 V&amp;V 金字塔。
+        </p>
+        <p class="en">
+          Adapting <code>ISO 34502:2022</code> scenario-based evaluation<sup><a class="fv-citation" href="#ref15">[15]</a></sup> and aviation Means of Compliance (MOC), validation must span a 5-layer V&amp;V loop from MIL/SIL and Iron-Bird HIL fault injection to full-vehicle crash/vibration coupling and controlled camp trials.
+        </p>
+
+        <div class="fv-table-wrap">
+          <table class="fv-table">
+            <thead>
+              <tr>
+                <th><span class="cn">验证场景 ID</span><span class="en">Scenario ID</span></th>
+                <th><span class="cn">极限边界测试工况描述</span><span class="en">Critical Edge-Case Test Condition</span></th>
+                <th><span class="cn">验证平台</span><span class="en">Test Rig</span></th>
+                <th><span class="cn">定量通过判据 (Pass/Fail)</span><span class="en">Quantitative Pass Criteria</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>VV-01</code></td>
+                <td><span class="cn">满油满载（目标 ≤4.5 t）50 km/h 追尾撞击，测试机库 X3-F 电池挤压</span><span class="en">50 km/h rear-impact crash with X3-F stowed inside bay</span></td>
+                <td><span class="cn">实车碰撞试验室</span><span class="en">Full-Scale Crash Lab</span></td>
+                <td><span class="cn">航空电池箱零结构侵入；5 ms 断高压；72 h 静置不起火不爆炸（GB 20072/38031）</span><span class="en">Zero pack intrusion; 5 ms HV cut; 72h zero fire/explosion</span></td>
+              </tr>
+              <tr>
+                <td><code>VV-02</code></td>
+                <td><span class="cn">10,000 km 强化试车场颠簸振动后直接展开 X3-F 进行全载荷试飞</span><span class="en">Full-payload flight immediately after 10,000 km rough-road durability</span></td>
+                <td><span class="cn">试验场 + 飞行台架</span><span class="en">Proving Ground + Flight</span></td>
+                <td><span class="cn">折叠锁销无裂纹/间隙超差，六旋翼固有频率漂移 &lt; 3%</span><span class="en">Zero lock-pin cracks; rotor-arm modal shift &lt; 3%</span></td>
+              </tr>
+              <tr>
+                <td><code>VV-03</code></td>
+                <td><span class="cn">悬停及前飞中随机注入单台 EPU 瞬时断电故障（OEI）</span><span class="en">Random single-EPU instant cutoff injected in hover &amp; cruise</span></td>
+                <td><span class="cn">铁鸟 HIL + 系留实飞</span><span class="en">Iron-Bird HIL + Tether</span></td>
+                <td><span class="cn">15 ms 内完成控制重构；滚转/俯仰峰值超调 &lt; 12° 并实现受控接地</span><span class="en">Reconfigure ≤15 ms; attitude excursion &lt; 12°; safe touchdown</span></td>
+              </tr>
+              <tr>
+                <td><code>VV-04</code></td>
+                <td><span class="cn">双机相对闭合接近测试（模拟长春航展编队近距场景，人工尝试屏蔽）</span><span class="en">Dual-aircraft closure test with operator attempting alert bypass</span></td>
+                <td><span class="cn">闭场多机联试</span><span class="en">Closed Range Dual-Flight</span></td>
+                <td><span class="cn">HMI 无法关闭底层硬防撞围栏；在安全间距自动施加反向排斥阻尼制动</span><span class="en">HMI cannot bypass hard bubble; auto-braking preserves safe margin</span></td>
+              </tr>
+              <tr>
+                <td><code>VV-05</code></td>
+                <td><span class="cn">2.5° 坡度 + 淋雨 + 泥沙条件下连续 1,000 次自动分合与 800V 快充</span><span class="en">1,000 automated dock/plug cycles on 2.5° wet/dusty terrain</span></td>
+                <td><span class="cn">环境舱 + 室外坡道</span><span class="en">Env Chamber + Field Slope</span></td>
+                <td><span class="cn">对准成功率 ≥ 99.8%，800V 盲插温升 &lt; 35 K，零拉弧与虚锁误报</span><span class="en">Success ≥ 99.8%; coupler ΔT &lt; 35 K; zero arcing or false latches</span></td>
+              </tr>
+              <tr>
+                <td><code>VV-06</code></td>
+                <td><span class="cn">-35°C 极寒静置 12h 后立即起飞叠加 10 m/s 侧风悬停（延展冬测验证）</span><span class="en">-35°C cold-soak 12h followed by 10 m/s crosswind hover</span></td>
+                <td><span class="cn">高寒实验基地</span><span class="en">Arctic Test Site</span></td>
+                <td><span class="cn">全电推无降额失控，18 min 预热快充后电芯无析锂触发热报警</span><span class="en">Full attitude margin retained; zero plating fault after fast charge</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Section 10 -->
+        <h2 id="gsn"><span class="cn">10 安全论据（GSN v3 Safety Case）与交互式残余风险门控</span><span class="en">10 GSN v3 Safety Case &amp; Interactive Residual-Risk Gate Audit</span></h2>
+        <p class="cn">
+          依照 <code>GSN Community Standard v3</code>（2021）<sup><a class="fv-citation" href="#ref16">[16]</a></sup>，安全论据（Safety Case）把所有分析、标准与试验证据串联为可审计的逻辑树。下图中实线圆表示“截至 2026-11-19 已具备初步公开证据支撑的论据节点”，虚线菱形表示“面向大众 C 端无限制交付前必须补全的未决证据缺口（Undeveloped）”。
+        </p>
+        <p class="en">
+          Following the <code>GSN Community Standard v3</code><sup><a class="fv-citation" href="#ref16">[16]</a></sup>, the assurance case tree below links our safety argument to verifiable evidence—distinguishing available public evidence (solid circles) from open undeveloped gaps (amber dashed diamonds) as of 19 November 2026.
+        </p>
+
+        <!-- Custom Vector SVG #4: GSN v3 Safety Case Tree -->
+        <figure class="fv-figure">
+          <svg viewBox="0 0 760 340" role="img" aria-label="基于 GSN v3 的陆地航母系统安全论据结构图">
+            <rect width="760" height="340" fill="#fbfcfd"/>
+            <text x="18" y="22" fill="#102d3c" font-size="11.5" font-weight="700" font-family="sans-serif">GSN v3 系统安全论据树：顶层目标 G1 与当前未决证据缺口 (◊)</text>
+            <line x1="18" y1="30" x2="742" y2="30" stroke="#d8dce0"/>
+
+            <!-- Contexts -->
+            <rect x="20" y="42" width="175" height="44" rx="14" fill="#f5f7f8" stroke="#6b7280"/>
+            <text x="107" y="61" fill="#111214" font-size="9.5" font-weight="700" text-anchor="middle" font-family="sans-serif">C1: ODD 边界限定</text>
+            <text x="107" y="76" fill="#5e646e" font-size="8.5" text-anchor="middle" font-family="sans-serif">昼间 VMC · LSA 非商载 · ≤2.5°坡</text>
+
+            <rect x="565" y="42" width="175" height="44" rx="14" fill="#f5f7f8" stroke="#6b7280"/>
+            <text x="652" y="61" fill="#111214" font-size="9.5" font-weight="700" text-anchor="middle" font-family="sans-serif">C2: 长春 CAST 约束</text>
+            <text x="652" y="76" fill="#5e646e" font-size="8.5" text-anchor="middle" font-family="sans-serif">防撞硬围栏不可人工屏蔽</text>
+
+            <!-- Top Goal G1 -->
+            <rect x="225" y="40" width="310" height="48" fill="#102d3c"/>
+            <text x="380" y="60" fill="#ffffff" font-size="11" font-weight="700" text-anchor="middle" font-family="sans-serif">G1: 「陆地航母」跨道路与低空运行</text>
+            <text x="380" y="76" fill="#9cd0e6" font-size="9.5" text-anchor="middle" font-family="sans-serif">在规定 ODD 下具有可接受的残余风险</text>
+            <line x1="195" y1="64" x2="225" y2="64" stroke="#6b7280" stroke-width="1.2"/>
+            <line x1="535" y1="64" x2="565" y2="64" stroke="#6b7280" stroke-width="1.2"/>
+
+            <!-- Strategy S1 -->
+            <line x1="380" y1="88" x2="380" y2="104" stroke="#173b4d" stroke-width="1.5"/>
+            <polygon points="240,104 540,104 520,140 220,140" fill="#eef4f7" stroke="#173b4d" stroke-width="1.4"/>
+            <text x="380" y="120" fill="#102d3c" font-size="10" font-weight="700" text-anchor="middle" font-family="sans-serif">S1: 按五维安全支柱分域论证并合并耦合最严标准</text>
+            <text x="380" y="133" fill="#5e646e" font-size="8.5" text-anchor="middle" font-family="sans-serif">Airworthiness · Road/Coupling · SOTIF · Thermal/Crash · Cyber</text>
+
+            <!-- Trunk to 5 Sub-goals -->
+            <line x1="380" y1="140" x2="380" y2="154" stroke="#173b4d" stroke-width="1.4"/>
+            <line x1="82" y1="154" x2="678" y2="154" stroke="#173b4d" stroke-width="1.4"/>
+            <line x1="82" y1="154" x2="82" y2="170" stroke="#173b4d" stroke-width="1.3"/>
+            <line x1="231" y1="154" x2="231" y2="170" stroke="#173b4d" stroke-width="1.3"/>
+            <line x1="380" y1="154" x2="380" y2="170" stroke="#173b4d" stroke-width="1.3"/>
+            <line x1="529" y1="154" x2="529" y2="170" stroke="#173b4d" stroke-width="1.3"/>
+            <line x1="678" y1="154" x2="678" y2="170" stroke="#173b4d" stroke-width="1.3"/>
+
+            <!-- 5 Sub-goals -->
+            <rect x="16" y="170" width="132" height="54" fill="#ffffff" stroke="#173b4d" stroke-width="1.3"/>
+            <text x="82" y="189" fill="#102d3c" font-size="9.5" font-weight="700" text-anchor="middle" font-family="sans-serif">G2: X3-F 适航与 OEI</text>
+            <text x="82" y="204" fill="#5e646e" font-size="8.2" text-anchor="middle" font-family="sans-serif">单发容错 / 折叠锁</text>
+            <text x="82" y="217" fill="#5e646e" font-size="8.2" text-anchor="middle" font-family="sans-serif">CAAC TC+PC 闭环</text>
+
+            <rect x="165" y="170" width="132" height="54" fill="#ffffff" stroke="#173b4d" stroke-width="1.3"/>
+            <text x="231" y="189" fill="#102d3c" font-size="9.5" font-weight="700" text-anchor="middle" font-family="sans-serif">G3: 道路合规与分合</text>
+            <text x="231" y="204" fill="#5e646e" font-size="8.2" text-anchor="middle" font-family="sans-serif">C1 ≤4.5 t / 行车锁死</text>
+            <text x="231" y="217" fill="#5e646e" font-size="8.2" text-anchor="middle" font-family="sans-serif">千次野外对接耐久</text>
+
+            <rect x="314" y="170" width="132" height="54" fill="#ffffff" stroke="#173b4d" stroke-width="1.3"/>
+            <text x="380" y="189" fill="#102d3c" font-size="9.5" font-weight="700" text-anchor="middle" font-family="sans-serif">G4: SOTIF 与硬围栏</text>
+            <text x="380" y="204" fill="#5e646e" font-size="8.2" text-anchor="middle" font-family="sans-serif">斜坡/风限/细缆避让</text>
+            <text x="380" y="217" fill="#5e646e" font-size="8.2" text-anchor="middle" font-family="sans-serif">不可屏蔽防撞锁</text>
+
+            <rect x="463" y="170" width="132" height="54" fill="#ffffff" stroke="#173b4d" stroke-width="1.3"/>
+            <text x="529" y="189" fill="#102d3c" font-size="9.5" font-weight="700" text-anchor="middle" font-family="sans-serif">G5: 热安全与追尾碰撞</text>
+            <text x="529" y="204" fill="#5e646e" font-size="8.2" text-anchor="middle" font-family="sans-serif">GB 38031-2025</text>
+            <text x="529" y="217" fill="#5e646e" font-size="8.2" text-anchor="middle" font-family="sans-serif">GB 20072 / 硬着陆防燃</text>
+
+            <rect x="612" y="170" width="132" height="54" fill="#ffffff" stroke="#173b4d" stroke-width="1.3"/>
+            <text x="678" y="189" fill="#102d3c" font-size="9.5" font-weight="700" text-anchor="middle" font-family="sans-serif">G6: 网安与域间隔离</text>
+            <text x="678" y="204" fill="#5e646e" font-size="8.2" text-anchor="middle" font-family="sans-serif">ISO/SAE 21434 TARA</text>
+            <text x="678" y="217" fill="#5e646e" font-size="8.2" text-anchor="middle" font-family="sans-serif">飞控物理隔离与 OTA 验签</text>
+
+            <!-- Solutions / Undeveloped Gaps -->
+            <line x1="82" y1="224" x2="82" y2="248" stroke="#173b4d" stroke-width="1.2"/>
+            <line x1="231" y1="224" x2="231" y2="248" stroke="#173b4d" stroke-width="1.2"/>
+            <line x1="380" y1="224" x2="380" y2="248" stroke="#173b4d" stroke-width="1.2"/>
+            <line x1="529" y1="224" x2="529" y2="248" stroke="#173b4d" stroke-width="1.2"/>
+            <line x1="678" y1="224" x2="678" y2="248" stroke="#173b4d" stroke-width="1.2"/>
+
+            <!-- Sn1 (Mixed: TC/PC pending) -->
+            <polygon points="82,248 134,278 82,308 30,278" fill="#fdf5e7" stroke="#9a5b13" stroke-width="1.5" stroke-dasharray="4,2"/>
+            <text x="82" y="275" fill="#9a5b13" font-size="8.5" font-weight="700" text-anchor="middle" font-family="sans-serif">◊ 缺口 Sn1</text>
+            <text x="82" y="288" fill="#5e4b2b" font-size="7.8" text-anchor="middle" font-family="sans-serif">TC/PC 未发 · 伞死区</text>
+
+            <!-- Sn2 (Undeveloped MIIT & 1000-cycle) -->
+            <polygon points="231,248 283,278 231,308 179,278" fill="#fdf5e7" stroke="#9a5b13" stroke-width="1.5" stroke-dasharray="4,2"/>
+            <text x="231" y="275" fill="#9a5b13" font-size="8.5" font-weight="700" text-anchor="middle" font-family="sans-serif">◊ 缺口 Sn2</text>
+            <text x="231" y="288" fill="#5e4b2b" font-size="7.8" text-anchor="middle" font-family="sans-serif">工信部公告 &amp; 千次斜坡</text>
+
+            <!-- Sn3 (Undeveloped Geofence Lock) -->
+            <polygon points="380,248 432,278 380,308 328,278" fill="#fdf5e7" stroke="#9a5b13" stroke-width="1.5" stroke-dasharray="4,2"/>
+            <text x="380" y="275" fill="#9a5b13" font-size="8.5" font-weight="700" text-anchor="middle" font-family="sans-serif">◊ 缺口 Sn3</text>
+            <text x="380" y="288" fill="#5e4b2b" font-size="7.8" text-anchor="middle" font-family="sans-serif">长春整改 &amp; -35°C降额</text>
+
+            <!-- Sn4 (Partial Verified: Battery Dual Cert vs Crash) -->
+            <circle cx="529" cy="278" r="29" fill="#eaf5ef" stroke="#165b3d" stroke-width="1.5"/>
+            <text x="529" y="274" fill="#165b3d" font-size="8.5" font-weight="700" text-anchor="middle" font-family="sans-serif">Sn4 部分闭环</text>
+            <text x="529" y="287" fill="#2d5b44" font-size="7.5" text-anchor="middle" font-family="sans-serif">电池双认证/缺追尾</text>
+
+            <!-- Sn5 (Undeveloped Cyber) -->
+            <polygon points="678,248 730,278 678,308 626,278" fill="#fdf5e7" stroke="#9a5b13" stroke-width="1.5" stroke-dasharray="4,2"/>
+            <text x="678" y="275" fill="#9a5b13" font-size="8.5" font-weight="700" text-anchor="middle" font-family="sans-serif">◊ 缺口 Sn5</text>
+            <text x="678" y="288" fill="#5e4b2b" font-size="7.8" text-anchor="middle" font-family="sans-serif">渗透测试与空地隔离</text>
+
+            <text x="18" y="330" fill="#5e646e" font-size="9.5" font-family="sans-serif">图例：矩形 = 安全目标 (Goal) · 平行四边形 = 论证策略 (Strategy) · 圆形 = 已有公开证据 · 虚线菱形 (◊) = 截至 2026-11-19 尚未完全闭环的缺口</text>
+          </svg>
+          <figcaption>
+            <span class="cn">图 4：GSN v3 安全论据结构。截至 2026 年 11 月，尽管电池双认证与极寒试验提供了一定积极证据，但核心适航取证（TC/PC）、工信部 4.5t 公告及防撞硬锁等关键节点仍处于待闭合状态。</span>
+            <span class="en">Figure 4: GSN v3 Safety Case structure distinguishing available public evidence from open undeveloped gates as of November 2026.</span>
+          </figcaption>
+        </figure>
+
+        <!-- Interactive Widget #3: Safety Release Readiness Checklist -->
+        <section class="sim-card" id="safetyGateAudit" aria-label="交互式残余风险放行门控核查清单">
+          <div class="sim-header">
+            <h4>
+              <span class="cn">交互式残余风险与量产放行门控核查清单（8 项安全门控）</span>
+              <span class="en">Interactive Safety Release Readiness Checklist (8 Gates)</span>
+            </h4>
+          </div>
+          <p class="fv-small" style="margin:0 0 12px;">
+            <span class="cn">默认仅勾选截至 2026-11-19 已公开具备强证据支持的项（1/8）；你可以勾选模拟后续补齐适航、工信部碰撞与软硬件整改后的放行成熟度变化：</span>
+            <span class="en">Default state reflects verified public safety evidence as of 2026-11-19 (1/8). Toggle checkboxes below to evaluate how closing open evidence gates shifts the operational release verdict:</span>
+          </p>
+
+          <div class="gate-checklist">
+            <label class="gate-item">
+              <input type="checkbox" class="gate-check" checked>
+              <span><strong>Gate 1 [部分证据]:</strong> <span class="cn">X3-F 360 Wh/kg 航空电池通过双安全认证与极寒冬测验证（2026-03）</span><span class="en">X3-F 360 Wh/kg pack dual auto/aviation cert &amp; winter tests (Mar 2026)</span></span>
+            </label>
+            <label class="gate-item">
+              <input type="checkbox" class="gate-check">
+              <span><strong>Gate 2 [未闭环]:</strong> <span class="cn">CAAC 正式获颁 X3-F 型号合格证（TC）与单点失效符合性批准</span><span class="en">Formal CAAC X3-F Type Certificate (TC) &amp; OEI compliance issuance</span></span>
+            </label>
+            <label class="gate-item">
+              <input type="checkbox" class="gate-check">
+              <span><strong>Gate 3 [未闭环]:</strong> <span class="cn">CAAC 获颁生产许可证（PC），核实量产一致性与质量体系闭环</span><span class="en">CAAC Production Certificate (PC) verifying serial quality consistency</span></span>
+            </label>
+            <label class="gate-item">
+              <input type="checkbox" class="gate-check">
+              <span><strong>Gate 4 [未闭环]:</strong> <span class="cn">陆行体工信部《公告》落地，满载 ≤4,500 kg（C1）且通过 GB 20072 追尾电池无侵入试验</span><span class="en">MIIT catalog approval (≤4,500 kg C1) + GB 20072 rear-crash pack proof</span></span>
+            </label>
+            <label class="gate-item">
+              <input type="checkbox" class="gate-check">
+              <span><strong>Gate 5 [未闭环]:</strong> <span class="cn">长春事件整改闭环：取消“防撞全关闭开关”并写入不可屏蔽底层电子防撞围栏</span><span class="en">Changchun fix: remove full collision-alert disable; hard-code separation bubble</span></span>
+            </label>
+            <label class="gate-item">
+              <input type="checkbox" class="gate-check">
+              <span><strong>Gate 6 [未闭环]:</strong> <span class="cn">公开千次坡道/雨雪环境自动分合与 800V 盲插零故障耐久验证报告</span><span class="en">1,000-cycle 2.5° slope/wet automated docking &amp; 800V coupler MTBF proof</span></span>
+            </label>
+            <label class="gate-item">
+              <input type="checkbox" class="gate-check">
+              <span><strong>Gate 7 [未闭环]:</strong> <span class="cn">公布整机弹射伞最小安全离地开伞高度（Min AGL）与高空/低空应急手册</span><span class="en">Publish ballistic parachute Min AGL dead-zone &amp; emergency flight manual</span></span>
+            </label>
+            <label class="gate-item">
+              <input type="checkbox" class="gate-check">
+              <span><strong>Gate 8 [未闭环]:</strong> <span class="cn">通过 ISO/SAE 21434 第三方渗透测试及“娱乐座舱-飞控系统”物理域隔离审计</span><span class="en">Independent ISO/SAE 21434 pen-test &amp; cockpit-FCC air-gap audit</span></span>
+            </label>
+          </div>
+
+          <div class="sim-results">
+            <div class="sim-metric">
+              <span class="lbl"><span class="cn">安全论据完备度</span><span class="en">Safety Case Completeness</span></span>
+              <strong class="num" id="auditScore">13%</strong>
+            </div>
+            <div class="sim-metric">
+              <span class="lbl"><span class="cn">已闭合门控项</span><span class="en">Closed Gates</span></span>
+              <strong class="num" id="auditCount">1 / 8</strong>
+            </div>
+          </div>
+
+          <div class="gate-progress-wrap" aria-hidden="true">
+            <div class="gate-progress-fill" id="auditBarFill"></div>
+          </div>
+
+          <div class="sim-metric wide" id="auditVerdictBox">
+            <span class="lbl"><span class="cn">当前系统安全放行等级建议</span><span class="en">Recommended Operational Release Verdict</span></span>
+            <strong class="num" style="font-size:13.5px;" id="auditVerdict">—</strong>
+          </div>
+        </section>
+
+        <!-- Section 11 -->
+        <h2 id="recommendations"><span class="cn">11 分级工程安全改进建议（P0 / P1 / P2）</span><span class="en">11 Prioritized Engineering Safety Recommendations</span></h2>
+        <div class="prio-grid">
+          <div class="prio-card p0">
+            <h4><span class="cn">P0 · 交付前强制阻断整改</span><span class="en">P0 · Mandatory Pre-Release</span></h4>
+            <ul>
+              <li><span class="cn">取消防撞预警全关闭权限，增加 UWB/ADS-B 不可屏蔽防撞硬围栏（回应长春事故）。</span><span class="en">Eliminate full collision-alert bypass; add non-overridable separation bubble.</span></li>
+              <li><span class="cn">建立后舱碰撞毫秒级断电硬线与防入侵吸能框，匹配 GB 38031-2025 与 GB 20072。</span><span class="en">Add 5 ms crash pyrofuse link &amp; rear bay crush box per GB 38031-2025.</span></li>
+              <li><span class="cn">在母舰倾角 &gt;2.5° 或周边 8 m 有人员时硬锁定分合与起飞指令。</span><span class="en">Hard-inhibit stowage at &gt;2.5° slope and takeoff with &lt;8 m bystanders.</span></li>
+            </ul>
+          </div>
+          <div class="prio-card p1">
+            <h4><span class="cn">P1 · 架构纵深与冗余加固</span><span class="en">P1 · Architecture Hardening</span></h4>
+            <ul>
+              <li><span class="cn">六旋翼飞控增设异构备份通道（Dissimilar Monitor）降低同源软件共因 β 因子。</span><span class="en">Add dissimilar FCC monitor channel to drive β-CCF ≤ 1%.</span></li>
+              <li><span class="cn">折叠臂锁止机构推行三传感确认（行程+拉力+霍尔）与 100 小时强制无损巡检。</span><span class="en">Enforce triple-verified boom latches + 100h NDT fatigue checks.</span></li>
+              <li><span class="cn">车机娱乐域与飞控/航空 BMS 间保持硬件空隙隔离，驻车断电下才允许 OTA 刷写。</span><span class="en">Maintain hardware air-gap to FCC; restrict OTA to powered-off parked state.</span></li>
+            </ul>
+          </div>
+          <div class="prio-card p2">
+            <h4><span class="cn">P2 · 车队持续适航与运营治理</span><span class="en">P2 · Fleet Governance</span></h4>
+            <ul>
+              <li><span class="cn">将单杆操作与真实 CCAR-61 SPL 执照账号强绑定，并实施 25% SOC 强制自动返航。</span><span class="en">Tie flight arming to valid SPL license ID + enforce 25% SOC auto-RTH.</span></li>
+              <li><span class="cn">建立车辆颠簸里程-机臂振动疲劳关联遥测模型（Predictive Health Monitoring）。</span><span class="en">Correlate rough-road mileage telemetry with airframe fatigue maintenance.</span></li>
+              <li><span class="cn">向用户透明披露整机降落伞死区高度包线与恶劣气象/高原起飞降额表。</span><span class="en">Publish parachute Min-AGL dead-zone and cold/altitude derating charts.</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Section 12 -->
+        <h2 id="limitations"><span class="cn">12 安全分析局限性与未公开证据缺口</span><span class="en">12 Limitations and Undisclosed Evidence Gaps</span></h2>
+        <p class="cn">
+          为恪守课程倡导的“证据可审计”原则，截至 2026 年 11 月 19 日，以下内部工程数据尚未对公众或学术界公开，本文定量模型中的相应输入项已明确标注为参数化敏感性分析而非厂商标定值：
+        </p>
+        <p class="en">
+          To uphold strict evidence traceability as of 19 November 2026, the following proprietary artifacts remain unpublished and are therefore parameterized via sensitivity ranges rather than OEM point values:
+        </p>
+        <ul>
+          <li><span class="cn"><strong>FMEDA 量化指标与硬件架构拓扑：</strong>飞控计算机具体余度构型（如三余度表决或双指令-监控架构）及元器件失效率、单点故障度量（SPFM/LFM）。</span><span class="en"><strong>Proprietary FMEDA &amp; FCC Topology:</strong> Exact redundancy architecture (e.g., TMR vs COM/MON) and SPFM/LFM metrics.</span></li>
+          <li><span class="cn"><strong>长春 2025-09-16 事件最终官方调查全文：</strong>关于事故中电池电芯起火的具体机械挤压位置、热扩散时间及官方正式整改验收文件全文。</span><span class="en"><strong>Final Investigation Report (Changchun, 16 Sept 2025):</strong> Official root-cause teardown of post-impact cell rupture timing and corrective sign-off.</span></li>
+          <li><span class="cn"><strong>陆行体工信部公告终版参数与整车追尾碰撞报告：</strong>4,500 kg C1 总质量上限下的实际整备质量、轴荷分布以及后舱搭载 X3-F 实车追尾实验数据。</span><span class="en"><strong>Final MIIT Homologation &amp; Rear-Crash Test Reports:</strong> Verified curb mass under the 4,500 kg C1 cap and physical rear-impact bay intrusion test logs.</span></li>
+        </ul>
+
+        <!-- References -->
+        <h2 id="references"><span class="cn">参考文献 (GB/T 7714—2015)</span><span class="en">References (GB/T 7714—2015)</span></h2>
+        <ol class="fv-reference-list">
+          <li id="ref1">张玉新. 飞行汽车技术基础 (Fundamentals of Flying Vehicle Technology) &amp; AD Safety Joint Lab 安全研究体系[EB/OL]. 吉林大学自动驾驶安全联合实验室, 2026 [2026-11-19]. <a href="https://lab.autozyx.com/fundamentals-of-flying-vehicle-technology/" target="_blank" rel="noopener">https://lab.autozyx.com/fundamentals-of-flying-vehicle-technology/</a>.</li>
+          <li id="ref2">International Organization for Standardization. Road vehicles — Functional safety: ISO 26262:2018[S]. Geneva: ISO, 2018.</li>
+          <li id="ref3">SAE International. Guidelines for Development of Civil Aircraft and Systems: ARP4754B[S]. Warrendale: SAE, 2023.</li>
+          <li id="ref4">中国民用航空局航空器适航审定司. 关于就 X3-F 型航空器专用条件征求意见的函[EB/OL]. (2025-03-17) [2026-11-19]. <a href="https://www.caac.gov.cn/HDJL/YJZJ/202503/t20250317_227845.html" target="_blank" rel="noopener">https://www.caac.gov.cn/HDJL/YJZJ/202503/t20250317_227845.html</a>.</li>
+          <li id="ref5">SAE International. Guidelines and Methods for Conducting the Safety Assessment Process on Civil Aircraft, Systems, and Equipment: ARP4761A[S]. Warrendale: SAE, 2023.</li>
+          <li id="ref6">European Union Aviation Safety Agency (EASA). Special Condition for small-category Vertical Take-Off and Landing (VTOL) aircraft: SC-VTOL-01[S/OL]. Cologne: EASA, 2019-07-02 [2026-11-19]. <a href="https://www.easa.europa.eu/" target="_blank" rel="noopener">https://www.easa.europa.eu/</a>.</li>
+          <li id="ref7">CnEVPost / Yicai / Aviation Week. Two Xpeng AeroHT flying cars collide during Changchun air show rehearsal, one catches fire on landing[EB/OL]. (2025-09-16) [2026-11-19]. <a href="https://cnevpost.com/" target="_blank" rel="noopener">https://cnevpost.com/</a>.</li>
+          <li id="ref8">OFweek / 新浪财经 / Unmanned Airspace. 长春航展小鹏汇天双机编队接触起火回应及防撞预警系统状态披露报道[EB/OL]. (2025-09-17) [2026-11-19]. <a href="https://www.aridge.com/" target="_blank" rel="noopener">https://www.aridge.com/</a>.</li>
+          <li id="ref9">LEVESON N G, THOMAS J P. STPA Handbook[M]. Cambridge, MA: Massachusetts Institute of Technology, 2018.</li>
+          <li id="ref10">DARMSTADT P R, PATHAK S, KRANTZ T, et al. Design Concepts to Meet EASA SC-VTOL-01 Single Failure Criteria[C]//Vertical Flight Society 78th Annual Forum &amp; Technology Display. Fort Worth: VFS, 2022. DOI: <a href="https://doi.org/10.4050/F-0078-2022-17608" target="_blank" rel="noopener">10.4050/F-0078-2022-17608</a>.</li>
+          <li id="ref11">International Organization for Standardization. Road vehicles — Safety of the intended functionality (SOTIF): ISO 21448:2022[S]. Geneva: ISO, 2022.</li>
+          <li id="ref12">ARIDGE / 小鹏汇天. X3-F 360 Wh/kg 高倍率四层热防护航空电池双安全认证及 -35°C 极寒测试公开进展[EB/OL]. 2026-01–2026-03 [2026-11-19]. <a href="https://www.xiaopeng.com/" target="_blank" rel="noopener">https://www.xiaopeng.com/</a>.</li>
+          <li id="ref13">国家市场监督管理总局, 国家标准化管理委员会. 电动汽车用动力蓄电池安全要求: GB 38031—2025[S]. 北京: 中国标准出版社, 2025 (2026-07-01 实施).</li>
+          <li id="ref14">International Organization for Standardization / SAE International. Road vehicles — Cybersecurity engineering: ISO/SAE 21434:2021[S]. Geneva: ISO, 2021.</li>
+          <li id="ref15">International Organization for Standardization. Road vehicles — Test scenarios for automated driving systems — Scenario based safety evaluation framework: ISO 34502:2022[S]. Geneva: ISO, 2022.</li>
+          <li id="ref16">Assurance Case Working Group (ACWG). Goal Structuring Notation (GSN) Community Standard Version 3[S/OL]. Safety-Critical Systems Club, 2021-05 [2026-11-19]. <a href="https://scsc.uk/" target="_blank" rel="noopener">https://scsc.uk/</a>.</li>
+          <li id="ref17">AHLBRECHT A, DURAK U. Integrating Safety into MBSE Processes with Formal Methods[C]//2021 IEEE/AIAA 40th Digital Avionics Systems Conference (DASC). San Antonio: IEEE, 2021: 1-8. DOI: <a href="https://doi.org/10.1109/DASC52595.2021.9594315" target="_blank" rel="noopener">10.1109/DASC52595.2021.9594315</a>.</li>
+          <li id="ref18">中华人民共和国公安部. 道路交通管理 机动车类型 (GA 802—2019) 及 机动车驾驶证申领和使用规定 (公安部令第162/172号)[S/OL]. 北京: 公安部, [2026-11-19]. <a href="https://www.mps.gov.cn/" target="_blank" rel="noopener">https://www.mps.gov.cn/</a>.</li>
+          <li id="ref19">RTCA. Software Considerations in Airborne Systems and Equipment Certification: DO-178C[S]. Washington, DC: RTCA, 2011.</li>
+        </ol>
+      </article>
+
+      <!-- Right Sticky Safety Rail -->
+      <aside class="fv-evidence-rail" aria-label="安全分析图例">
+        <p class="fv-rail-title"><span class="cn">安全严酷度图例</span><span class="en">Safety Severity Legend</span></p>
+        <ul>
+          <li>
+            <span class="fv-badge fv-badge-critical">ASIL D / DAL A / Critical</span><br>
+            <span class="cn">可导致致命坠毁、高速失控或热扩散爆燃；要求异构双冗余与最高验证强度。</span>
+            <span class="en">Fatal crash, highway ejection, or uncontained fire; mandates dual redundancy &amp; DAL A/ASIL D.</span>
+          </li>
+          <li>
+            <span class="fv-badge fv-badge-high">ASIL C / DAL B / Hazardous</span><br>
+            <span class="cn">重大安全裕度削减或重伤风险，须具备强制边界闭锁。</span>
+            <span class="en">Severe margin erosion or serious injury; requires enforced interlocks.</span>
+          </li>
+          <li>
+            <span class="fv-badge fv-badge-med">ASIL B / DAL C / Major</span><br>
+            <span class="cn">显著性能降级或地面近场风险，需传感器与规程协同缓释。</span>
+            <span class="en">Significant degradation or pad hazard mitigated via sensors + ops rules.</span>
+          </li>
+          <li>
+            <span class="fv-badge fv-badge-open"><span class="cn">未闭环缺口</span><span class="en">Open Gap</span></span><br>
+            <span class="cn">截至 2026-11-19 尚未公开完整验证报告的关键门控。</span>
+            <span class="en">Critical release evidence unpublished as of 19 Nov 2026.</span>
+          </li>
+        </ul>
+
+        <div class="fv-rail-card">
+          <strong><span class="cn">作业-2 交付自检</span><span class="en">Assignment 2 Checklist</span></strong>
+          <span class="cn">
+            ✓ 根目录 <code>index.html</code> 入口<br>
+            ✓ 覆盖 CAST / FHA / HARA / STPA / FTA / DFMEA / CCA / SOTIF / TARA / V&amp;V / GSN<br>
+            ✓ 纳入 2025-09-16 长春事件与 GB 38031-2025<br>
+            ✓ 3 个交互安全分析工具 + 中英切换
+          </span>
+          <span class="en">
+            ✓ Root <code>index.html</code> entry<br>
+            ✓ Full CAST / FHA / HARA / STPA / FTA / DFMEA / CCA / SOTIF / TARA / V&amp;V / GSN chain<br>
+            ✓ Grounded in Changchun 2025 &amp; GB 38031-2025<br>
+            ✓ 3 interactive safety tools + CN/EN toggle
+          </span>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="fv-footer">
+    <div class="container">
+      <p>
+        <span class="cn"><strong>《飞行汽车技术基础（2026）》课程作业-2：全方位系统安全分析</strong> · 对象：小鹏汇天（ARIDGE）「陆地航母」 · 截止：2026-11-26 18:00</span>
+        <span class="en"><strong>Fundamentals of Flying Vehicle Technology (2026) · Assignment 2 System Safety Analysis</strong> · Subject: ARIDGE Land Aircraft Carrier</span>
+      </p>
+      <p>
+        <span class="cn">声明：本网页为学术系统安全工程课程分析报告，所有概率仿真及门控评级均基于公开可验证资料与工程第一性原理推演，不代表官方适航审定结论。</span>
+        <span class="en">Disclaimer: Academic safety engineering coursework based on public disclosures and parameterized models; not an official regulatory certification determination.</span>
+      </p>
+    </div>
+  </footer>
+
+  <script src="assets/app.js"></script>
+</body>
+</html>
